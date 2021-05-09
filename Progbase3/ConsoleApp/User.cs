@@ -59,27 +59,6 @@ public class User
         return comparer.Compare(hashOfInput, hash) == 0;
     }
 
-
-
-
-
-
-    /*
-        public int GetHashCode(string password) //Change 
-        {
-            int hash = default;
-
-            for (int i = 0; i < password.Length; i++)
-            {
-                char c = password[i];
-                hash += c;
-            }
-
-            return hash;
-        }
-        */
-
-
     public bool IsModerator(int moderatorNum)
     {
         if (moderatorNum == 0)

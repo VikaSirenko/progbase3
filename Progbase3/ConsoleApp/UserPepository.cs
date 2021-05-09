@@ -142,26 +142,23 @@ public class UserPepository
     }
 
 
-    public List<User> GetListOfUsers()
+    public List<long> GetListOfUsersId()
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"SELECT * FROM users";
         SqliteDataReader reader = command.ExecuteReader();
-        List<User> userList=new List<User>();
+        List<long> userListId=new List<long>();
         while (reader.Read())
         {
             User user =ParseUser(reader);
-            userList.Add(user);
+            userListId.Add(user.id);
         }
         reader.Close();
         connection.Close();
-        return  userList;
+        return  userListId;
 
     }
-
-
-
 
 
 }

@@ -22,7 +22,7 @@ public class CommentRepository
         SELECT last_insert_rowid();
         ";
         command.Parameters.AddWithValue("$commentText", comment.commentText);
-        command.Parameters.AddWithValue("$commentedAt", comment.commentedAt);
+        command.Parameters.AddWithValue("$commentedAt", comment.commentedAt.ToString("o"));
         command.Parameters.AddWithValue("$userId", comment.userId);
         command.Parameters.AddWithValue("$postId", comment.postId);
         long newId = (long)command.ExecuteScalar();

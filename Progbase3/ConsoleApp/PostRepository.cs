@@ -45,7 +45,7 @@ public class PostRepository
         SELECT last_insert_rowid();
         ";
         command.Parameters.AddWithValue("$publicationText", post.publicationText);
-        command.Parameters.AddWithValue("$publishedAt", post.publishedAt);
+        command.Parameters.AddWithValue("$publishedAt", post.publishedAt.ToString("o"));
         command.Parameters.AddWithValue("$userId", post.userId);
         command.Parameters.AddWithValue("$pinCommentId", post.pinCommentId);
         long newId = (long)command.ExecuteScalar();
@@ -151,6 +151,25 @@ public class PostRepository
 
     }
 
+    public List<long> GetListOfPostsId(long userId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM posts WHERE userId = $userId";
+        command.Parameters.AddWithValue("$userId", userId);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<long> postListId = new List<long>();
+        while (reader.Read())
+        {
+            Post post = new Post();
+            post = ParsePostData(reader, post);
+            postListId.Add(post.id);
+        }
+        reader.Close();
+        connection.Close();
+        return postListId;
+    }
+
 
     //???
     public void DeleteAllByUserId(long userId)
@@ -163,7 +182,9 @@ public class PostRepository
 
     }
 
-    
+
+
+
 
 
 

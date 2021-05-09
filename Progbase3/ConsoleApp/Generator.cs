@@ -18,6 +18,7 @@ namespace ConsoleApp
             {
                 WriteLine("Enter the entity you want to generate");
                 string entity = ReadLine();
+
                 switch (entity)
                 {
                     case "user":
@@ -37,9 +38,12 @@ namespace ConsoleApp
                         break;
 
                 }
+
                 WriteLine();
             }
         }
+
+
 
         private static void GenereteUsers(SqliteConnection connection)
         {
@@ -68,10 +72,10 @@ namespace ConsoleApp
                 string[] userName = (FindRandomLineInFile(usernamesPath, usernamesLines)).Split(",");
                 string password = FindRandomLineInFile(passwordsPath, passwordsLines);
                 string[] surname = FindRandomLineInFile(surnamePath, surnameLines).Split(",");
-                string [] name =FindRandomLineInFile(namesPath, namesLines).Split(",");
-                string fullname = name[0] + " " + surname[1];      
+                string[] name = FindRandomLineInFile(namesPath, namesLines).Split(",");
+                string fullname = name[0] + " " + surname[1];
                 Random random = new Random();
-                int isModeratorNum= 0;                                //TODO
+                int isModeratorNum = default;                                //TODO
                 //int isModeratorNum = random.Next(0, 2);
                 User user = new User(userName[0], password, fullname, isModeratorNum);
                 UserPepository userPepository = new UserPepository(connection);
@@ -82,7 +86,6 @@ namespace ConsoleApp
                     numberOfUsers--;
                 }
             }
-
         }
 
 
@@ -92,6 +95,7 @@ namespace ConsoleApp
             {
                 return;
             }
+
             WriteLine("How many posts do you want to generate?");
             int numberOfPosts;
             bool isNumberOfPosts = int.TryParse(ReadLine(), out numberOfPosts);
@@ -105,31 +109,33 @@ namespace ConsoleApp
             WriteLine("Set a numeric interval for the date of publication of posts in the format: dd.mm.yyyy-dd.mm.yyyy");
             string timeInterval = ReadLine();
             DateTime[] times = ParseDateTime(timeInterval);
+
             if (times != null)
             {
                 while (numberOfPosts != 0)
                 {
-                    Random random = new Random();
-                    Post post = new Post();
                     UserPepository userPepository = new UserPepository(connection);
-                    List<User> userList= userPepository.GetListOfUsers();
-                    int index = random.Next(0, userList.Count);
-                    post.userId = userList[index].id;                                 
+                    Post post = new Post();
+                    post.userId = GetRandomUserId(userPepository);
+
                     if (userPepository.UserExistsById(post.userId) == true)
                     {
-                        post.publicationText = "";                                    //TODO
+                        string postPath = "/home/vika/projects/progbase3/data/generator/posts.csv";
+                        int postsLines = 100000;
+                        string[] publicationText = (FindRandomLineInFile(postPath, postsLines)).Split(",");
+                        post.publicationText = publicationText[1];
                         post.publishedAt = RandomDateTime(times);
                         post.pinCommentId = default;                                   //TODO
                         PostRepository postRepository = new PostRepository(connection);
                         postRepository.Insert(post);
                         numberOfPosts--;
                     }
-
                 }
-
             }
-
         }
+
+
+
 
         private static void GenereteComments(SqliteConnection connection)
         {
@@ -137,6 +143,7 @@ namespace ConsoleApp
             {
                 return;
             }
+
             WriteLine("How many comments do you want to generate?");
             int numberOfComments;
             bool isNumberOfComments = int.TryParse(ReadLine(), out numberOfComments);
@@ -146,9 +153,11 @@ namespace ConsoleApp
                 Console.Error.WriteLine("The number of comments is incorrect. Try again.");
                 return;
             }
+
             WriteLine("Set a numeric interval for the date of publication of comments in the format: dd.mm.yyyy-dd.mm.yyyy");
             string timeInterval = ReadLine();
             DateTime[] times = ParseDateTime(timeInterval);
+
             if (times != null)
             {
                 while (numberOfComments != 0)
@@ -156,30 +165,33 @@ namespace ConsoleApp
                     UserPepository userPepository = new UserPepository(connection);
                     PostRepository postRepository = new PostRepository(connection);
                     Comment comment = new Comment();
-                    Random random = new Random();
-                    List<User> userList= userPepository.GetListOfUsers();
-                    int indexUser = random.Next(0, userList.Count);
-                    comment.userId = userList[indexUser].id; 
-                    List<Post> postList =postRepository.GetAllByUserId(userList[indexUser].id);
-                    int indexPost= random.Next(0,postList.Count);
-                    comment.postId=postList[indexPost].id;
-                    if (userPepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
+                    comment.userId = GetRandomUserId(userPepository);
+                    long postId = GetRandomPostId(postRepository, comment.userId);
+                    
+                    if (postId == 0)
                     {
-                        comment.commentText = "";                  //TODO
-                        comment.commentedAt = RandomDateTime(times);
-                        Post post = postRepository.GetByPostId(comment.userId);
-                        if (comment.commentedAt > post.publishedAt)
-                        {
-                            CommentRepository commentRepository = new CommentRepository(connection);
-                            commentRepository.Insert(comment);
-                            numberOfComments--;
-                        }
-
+                        continue;
                     }
 
+                    comment.postId = postId;
+
+                    if (userPepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
+                    {
+                        string commentsPath = "/home/vika/projects/progbase3/data/generator/comments.csv";
+                        int commentsLines = 100000;
+                        string[] commentText = (FindRandomLineInFile(commentsPath, commentsLines)).Split(",");
+                        comment.commentText = commentText[1];                  //TODO
+                        comment.commentedAt = RandomDateTime(times);
+                        Post post = postRepository.GetByPostId(comment.userId);
+                        CommentRepository commentRepository = new CommentRepository(connection);
+                        commentRepository.Insert(comment);
+                        numberOfComments--;
+
+                    }
                 }
             }
         }
+
 
         private static DateTime RandomDateTime(DateTime[] timeInterval)
         {
@@ -189,16 +201,20 @@ namespace ConsoleApp
             return randomDate;
         }
 
+
         private static DateTime[] ParseDateTime(string timeInterval)
         {
             string[] interval = timeInterval.Split("-");
+
             if (interval.Length != 2)
             {
                 Console.Error.WriteLine("The time interval is set in the wrong format.");
                 return null;
             }
+
             string[] startTime = interval[0].Split(".");
             string[] endTime = interval[1].Split(".");
+
             if (startTime.Length != 3 || endTime.Length != 3)
             {
                 Console.Error.WriteLine("The time interval is set in the wrong format.");
@@ -216,45 +232,15 @@ namespace ConsoleApp
                     Console.Error.WriteLine("Start date is greater than end date. This cannot be. Enter the time interval in the correct format");
                     return null;
                 }
+
                 return time;
             }
+
             catch
             {
                 Console.Error.WriteLine("Date cannot be parsed.The time interval is set in the wrong format.");
                 return null;
             }
-
-
-
-
-            /*
-            int startDay;
-            int startMonth;
-            int startYear;
-            int endDay;
-            int endMonth;
-            int endYear;
-            DateTime[] time = new DateTime[2];
-
-            if (int.TryParse(startTime[2], out startYear) && int.TryParse(startTime[1], out startMonth) && int.TryParse(startTime[0], out startDay)
-                     && int.TryParse(endTime[2], out endYear) && int.TryParse(endTime[1], out endMonth) && int.TryParse(endTime[0], out endDay))
-            {
-                time[0] = new DateTime(startYear, startMonth, startDay);
-                time[1] = new DateTime(endYear, endMonth, endDay);
-                if (time[1] < time[2])
-                {
-                    Console.Error.WriteLine("Start date is greater than end date. This cannot be. Enter the time interval in the correct format");
-                    return null;
-                }
-            }
-            else
-            {
-                Console.Error.WriteLine("Date cannot be parsed.The time interval is set in the wrong format.");
-                return null;
-            }
-            return time;
-            */
-
         }
 
 
@@ -270,21 +256,23 @@ namespace ConsoleApp
                 search_line = finder.ReadLine();
                 numberOfLine--;
             }
+
             finder.Close();
             return search_line;
-
-
-
         }
+
+
 
         private static bool ValidateCountUsers(SqliteConnection connection)
         {
             UserPepository userPepository = new UserPepository(connection);
             long usersCount = userPepository.GetCount();
+
             if (usersCount != 0)
             {
                 return true;
             }
+
             Console.Error.WriteLine("Users who could create posts and write comments do not exist. Generate users first.");
             return false;
 
@@ -294,16 +282,42 @@ namespace ConsoleApp
         {
             PostRepository postRepository = new PostRepository(connection);
             long postsCount = postRepository.GetCount();
+
             if (postsCount != 0)
             {
                 return true;
             }
+
             Console.Error.WriteLine("Posts under which you can leave a comment does not exist. First generate posts.");
             return false;
+
         }
 
+        private static long GetRandomUserId(UserPepository userPepository)
+        {
+            Random random = new Random();
+            List<long> userListId = userPepository.GetListOfUsersId();
+            int index = random.Next(0, userListId.Count);
+            long userId = userListId[index];
+            return userId;
+        }
 
+        private static long GetRandomPostId(PostRepository postRepository, long userId)
+        {
 
+            Random random = new Random();
+            List<long> postListId = postRepository.GetListOfPostsId(userId);
+
+            if (postListId.Count == 0)
+            {
+                return 0;
+            }
+
+            int index = random.Next(0, postListId.Count);
+            long postId = postListId[index];
+            return postId;
+
+        }
 
     }
 }
