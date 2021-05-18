@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
-
+[XmlType(TypeName = "post")]
 public class Post
 {
     public long id;
@@ -10,11 +11,12 @@ public class Post
     public long userId;
     public long pinCommentId;
 
+    [XmlElement("comment")]
     public List<Comment> comments;
 
     public Post()
     {
-        this.id= default;
+        this.id = default;
         this.publicationText = default;
         this.publishedAt = default;
         this.userId = default;
@@ -22,5 +24,5 @@ public class Post
     }
 
 
-    
+
 }

@@ -78,11 +78,11 @@ namespace ConsoleApp
                 int isModeratorNum = default;                                //TODO
                 //int isModeratorNum = random.Next(0, 2);
                 User user = new User(userName[0], password, fullname, isModeratorNum);
-                UserPepository userPepository = new UserPepository(connection);
+                UserRepository userRepository = new UserRepository(connection);
 
-                if (userPepository.UserExists(user.userName, user.passwordHash) == false)
+                if (userRepository.UserExists(user.userName, user.passwordHash) == false)
                 {
-                    userPepository.Insert(user);
+                    userRepository.Insert(user);
                     numberOfUsers--;
                 }
             }
@@ -114,11 +114,11 @@ namespace ConsoleApp
             {
                 while (numberOfPosts != 0)
                 {
-                    UserPepository userPepository = new UserPepository(connection);
+                    UserRepository userRepository = new UserRepository(connection);
                     Post post = new Post();
-                    post.userId = GetRandomUserId(userPepository);
+                    post.userId = GetRandomUserId(userRepository);
 
-                    if (userPepository.UserExistsById(post.userId) == true)
+                    if (userRepository.UserExistsById(post.userId) == true)
                     {
                         string postPath = "/home/vika/projects/progbase3/data/generator/posts.csv";
                         int postsLines = 100000;
@@ -162,10 +162,10 @@ namespace ConsoleApp
             {
                 while (numberOfComments != 0)
                 {
-                    UserPepository userPepository = new UserPepository(connection);
+                    UserRepository userRepository = new UserRepository(connection);
                     PostRepository postRepository = new PostRepository(connection);
                     Comment comment = new Comment();
-                    comment.userId = GetRandomUserId(userPepository);
+                    comment.userId = GetRandomUserId(userRepository);
                     long postId = GetRandomPostId(postRepository, comment.userId);
                     
                     if (postId == 0)
@@ -175,7 +175,7 @@ namespace ConsoleApp
 
                     comment.postId = postId;
 
-                    if (userPepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
+                    if (userRepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
                     {
                         string commentsPath = "/home/vika/projects/progbase3/data/generator/comments.csv";
                         int commentsLines = 100000;
@@ -265,7 +265,7 @@ namespace ConsoleApp
 
         private static bool ValidateCountUsers(SqliteConnection connection)
         {
-            UserPepository userPepository = new UserPepository(connection);
+            UserRepository userPepository = new UserRepository(connection);
             long usersCount = userPepository.GetCount();
 
             if (usersCount != 0)
@@ -293,10 +293,10 @@ namespace ConsoleApp
 
         }
 
-        private static long GetRandomUserId(UserPepository userPepository)
+        private static long GetRandomUserId(UserRepository userRepository)
         {
             Random random = new Random();
-            List<long> userListId = userPepository.GetListOfUsersId();
+            List<long> userListId = userRepository.GetListOfUsersId();
             int index = random.Next(0, userListId.Count);
             long userId = userListId[index];
             return userId;

@@ -30,8 +30,6 @@ public class PostRepository
         long count = (long)command.ExecuteScalar();
         connection.Close();
         return count;
-
-
     }
 
     public long Insert(Post post)
@@ -182,10 +180,87 @@ public class PostRepository
 
     }
 
+    public int GetTotalPages(int pageLength)
+    {
+        return (int)Math.Ceiling(this.GetCount() / (double)pageLength);
+    }
+
+    public List<Post> GetPageOfPosts(int pageNumber, int pageLength)
+    {
+        connection.Open();
+
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM  posts LIMIT $pageLength OFFSET $pageLength *($pageNumber -1 ) ";
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Post> postsList = new List<Post>();
+
+        while (reader.Read())
+        {
+            Post post = new Post();
+            post = ParsePostData(reader, post);
+            postsList.Add(post);
+        }
+
+        reader.Close();
+        connection.Close();
+        return postsList;
+
+    }
 
 
+    /*
+        public List<Post> FilterByCoincidence(string value)
+        {
+            connection.Open();
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM posts, comments WHERE posts.publicationText LIKE '%' || $value || '%'  AND  posts.id=comments.postId ";
+            command.Parameters.AddWithValue("$value", value);
 
+            SqliteDataReader reader = command.ExecuteReader();
 
+            List<Post> posts = new List<Post>();
+            while (reader.Read())
+            {
+                Post post = new Post();
+                post = ParsePostData(reader, post);
+                Comment comment = new Comment();
+                comment = ParseCommentData(reader, comment);
+                post.comments.Add(comment);
+                posts.Add(post);
+            }
+            reader.Close();
+            connection.Close();
+            return posts;
+        }
 
+        private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
+        {
+            bool isId = long.TryParse(reader.GetString(0), out comment.id);
+            bool isCommentedAt = DateTime.TryParse(reader.GetString(2), out comment.commentedAt);
+            bool isPostId = long.TryParse(reader.GetString(4), out comment.postId);
+            bool isUserId = long.TryParse(reader.GetString(3), out comment.userId);
+            if (isId && isUserId && isCommentedAt && isPostId)
+            {
+                comment.id = long.Parse(reader.GetString(5));
+                comment.commentText = reader.GetString(6);
+                comment.commentedAt = DateTime.Parse(reader.GetString(7));
+                comment.userId = long.Parse(reader.GetString(8));
+                comment.postId = long.Parse(reader.GetString(9));
+                return comment;
+            }
+            else
+            {
+                throw new FormatException("Values cannot be parsed");
 
+            }
+        }
+
+        */
 }

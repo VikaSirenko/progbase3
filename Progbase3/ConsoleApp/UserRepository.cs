@@ -2,10 +2,10 @@ using System;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 
-public class UserPepository
+public class UserRepository
 {
     private SqliteConnection connection;
-    public UserPepository(SqliteConnection connection)
+    public UserRepository(SqliteConnection connection)
     {
         this.connection = connection;
     }
@@ -148,17 +148,52 @@ public class UserPepository
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"SELECT * FROM users";
         SqliteDataReader reader = command.ExecuteReader();
-        List<long> userListId=new List<long>();
+        List<long> userListId = new List<long>();
         while (reader.Read())
         {
-            User user =ParseUser(reader);
+            User user = ParseUser(reader);
             userListId.Add(user.id);
         }
         reader.Close();
         connection.Close();
-        return  userListId;
+        return userListId;
 
     }
+
+
+    public int GetTotalPages(int pageLength)
+    {
+        return (int)Math.Ceiling(this.GetCount() / (double)pageLength);
+    }
+
+    public List<User> GetPageOfUsers(int pageNumber, int pageLength)
+    {
+        connection.Open();
+
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM  users LIMIT $pageLength OFFSET $pageLength *($pageNumber -1 ) ";
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<User> usersList = new List<User>();
+
+        while (reader.Read())
+        {
+            User user = ParseUser(reader);
+            usersList.Add(user);
+        }
+
+        reader.Close();
+        connection.Close();
+        return usersList;
+
+    }
+
 
 
 }
