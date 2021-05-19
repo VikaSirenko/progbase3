@@ -18,12 +18,19 @@ namespace ConsoleApp
         public ShowUsersDialog()
         {
             this.Title = "Show users";
+            Button backBtn = new Button("Back");
+            backBtn.Clicked += OnShowDialogBack;
+            this.Add(backBtn);
             allUsersListView = new ListView(new List<User>())
             {
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
 
             };
+
+            Button createUserBtn = new Button(2, 4, "Create user");
+            createUserBtn.Clicked += OnCreateUserClicked;
+            this.Add(createUserBtn);
 
             allUsersListView.OpenSelectedItem += OnOpenUser;
             prevPageButton = new Button(28, 14, "<");
@@ -52,6 +59,36 @@ namespace ConsoleApp
 
 
         }
+
+        private void OnCreateUserClicked()
+        {
+
+            CreateUserDialog dialog = new CreateUserDialog();
+            Application.Run(dialog);
+
+            if (dialog.canceled == false)
+            {
+                User user = dialog.GetUserFromFields();
+                if (user == null)
+                {
+                    MessageBox.ErrorQuery("Create user", "Can not create user.\nAll fields must be filled in the correct format", "OK");
+                }
+
+                else
+                {
+                    long id = userRepository.Insert(user);
+                    user.id = id;
+                }
+            }
+
+
+        }
+
+        private void OnShowDialogBack()
+        {
+            Application.RequestStop();
+        }
+
         public void SetRepository(UserRepository userRepository)
         {
             this.userRepository = userRepository;
@@ -60,8 +97,22 @@ namespace ConsoleApp
 
         private void OnOpenUser(ListViewItemEventArgs args)
         {
+            OpenUserDialog dialog = new OpenUserDialog();
+            User user = (User)args.Value;
+            dialog.SetUser(user);
 
-            //TODO
+            Application.Run(dialog);
+
+            if (dialog.deleted == true)
+            {
+                ProcessDeleteUser(user);
+
+            }
+
+            else if (dialog.updated == true)
+            {
+                ProcessEditUser(dialog, user);
+            }
 
         }
 
@@ -116,6 +167,41 @@ namespace ConsoleApp
             else
             {
                 isEmptyListLbl.Visible = false;
+            }
+
+        }
+
+        private void ProcessDeleteUser(User user)
+        {
+            bool isDeleted = userRepository.Delete(user.id);
+            if (isDeleted)
+            {
+                int countOfPages = userRepository.GetTotalPages(pageLength);
+                if (currentPage > countOfPages && currentPage > 1)
+                {
+                    currentPage--;
+                }
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Delete user", "Can not delete user.", "OK");
+            }
+
+        }
+
+        private void ProcessEditUser(OpenUserDialog dialog, User user)
+        {
+            User updatedUser = dialog.GetTask();
+            if (userRepository.Update(updatedUser, user.id))
+            {
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Edit user", "Can not edit user.", "OK");
             }
 
         }

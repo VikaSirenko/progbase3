@@ -3,125 +3,210 @@ using System.Collections.Generic;
 
 namespace ConsoleApp
 {
-    public class ShowPostsDialog
+    public class ShowPostsDialog : Dialog
     {
-        public class ShowUsersDialog : Dialog
+
+        private ListView allPostsListView;
+
+        private int pageLength = 10;
+        private int currentPage = 1;
+        private Label currentPageLbl;
+        private Label allPagesLbl;
+        private Button prevPageButton;
+        private Button nextPageButton;
+        private PostRepository postRepository;
+        private Label isEmptyListLbl;
+        public ShowPostsDialog()
         {
-            private ListView allPostsListView;
-
-            private int pageLength = 10;
-            private int currentPage = 1;
-            private Label currentPageLbl;
-            private Label allPagesLbl;
-            private Button prevPageButton;
-            private Button nextPageButton;
-            private PostRepository postRepository;
-            private Label isEmptyListLbl;
-            public ShowUsersDialog()
+            this.Title = "Show posts";
+            allPostsListView = new ListView(new List<User>())
             {
-                this.Title = "Show posts";
-                allPostsListView = new ListView(new List<User>())
-                {
-                    Width = Dim.Fill(),
-                    Height = Dim.Fill(),
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
 
-                };
+            };
+            Button backBtn = new Button("Back");
+            backBtn.Clicked += OnShowDialogBack;
+            this.Add(backBtn);
 
-                allPostsListView.OpenSelectedItem += OnOpenPost;
-                prevPageButton = new Button(28, 14, "<");
-                nextPageButton = new Button(44, 14, ">");
-                this.currentPageLbl = new Label(36, 14, "?");
-                Label slash = new Label(38, 14, "/");
-                this.allPagesLbl = new Label(40, 14, "?");
+            Button createPostBtn = new Button(2, 6, "Create post");
+            createPostBtn.Clicked += OnCreatePostClicked;
+            this.Add(createPostBtn);
 
-                nextPageButton.Clicked += OnNextButtonClicked;
-                prevPageButton.Clicked += OnPrevButtonClicked;
+            allPostsListView.OpenSelectedItem += OnOpenPost;
+            prevPageButton = new Button(28, 14, "<");
+            nextPageButton = new Button(44, 14, ">");
+            this.currentPageLbl = new Label(36, 14, "?");
+            Label slash = new Label(38, 14, "/");
+            this.allPagesLbl = new Label(40, 14, "?");
 
-                FrameView frameView = new FrameView("Posts")
-                {
-                    X = 4,
-                    Y = 2,
-                    Width = Dim.Fill() - 4,
-                    Height = pageLength + 2,
-                };
+            nextPageButton.Clicked += OnNextButtonClicked;
+            prevPageButton.Clicked += OnPrevButtonClicked;
 
-                frameView.Add(allPostsListView);
-                this.Add(frameView);
-
-                isEmptyListLbl = new Label("There is no posts.");
-                frameView.Add(isEmptyListLbl);
-                isEmptyListLbl.Visible = false;
-
-
-            }
-            public void SetRepository(PostRepository postRepository)
+            FrameView frameView = new FrameView("Posts")
             {
-                this.postRepository = postRepository;
-                ShowCurrentPage();
-            }
+                X = 4,
+                Y = 2,
+                Width = Dim.Fill() - 4,
+                Height = pageLength + 2,
+            };
 
-            private void OnOpenPost(ListViewItemEventArgs args)
+            frameView.Add(allPostsListView);
+            this.Add(frameView);
+
+            isEmptyListLbl = new Label("There is no posts.");
+            frameView.Add(isEmptyListLbl);
+            isEmptyListLbl.Visible = false;
+
+
+        }
+
+        private void OnCreatePostClicked()
+        {
+
+            CreatePostDialog dialog = new CreatePostDialog();
+            Application.Run(dialog);
+
+            if (dialog.canceled == false)
             {
-
-                //TODO
-
-            }
-
-            private void OnNextButtonClicked()
-            {
-                int totalPages = postRepository.GetTotalPages(pageLength);
-                if (currentPage >= totalPages)
+                Post post = dialog.GetPostFromFields();
+                if (post == null)
                 {
-                    return;
-                }
-
-                this.currentPage++;
-                ShowCurrentPage();
-
-            }
-
-            private void OnPrevButtonClicked()
-            {
-
-                int totalPages = postRepository.GetTotalPages(pageLength);
-                if (currentPage <= 1)
-                {
-                    return;
-                }
-
-                this.currentPage--;
-                ShowCurrentPage();
-            }
-
-            private void ShowCurrentPage()
-            {
-                this.currentPageLbl.Text = currentPage.ToString();
-                int totalPages = postRepository.GetTotalPages(pageLength);
-
-                if (totalPages == 0)
-                {
-                    totalPages = 1;
-                }
-
-                this.allPagesLbl.Text = totalPages.ToString();
-
-                this.allPostsListView.SetSource(postRepository.GetPageOfPosts(currentPage, pageLength));
-
-                prevPageButton.Visible = (currentPage != 1);
-                nextPageButton.Visible = (currentPage != int.Parse(this.allPagesLbl.Text.ToString()));
-
-                if (postRepository.GetPageOfPosts(currentPage, pageLength).Count == 0)
-                {
-                    isEmptyListLbl.Visible = true;
+                    MessageBox.ErrorQuery("Create post", "Can not create post.\nAll fields must be filled in the correct format", "OK");
                 }
 
                 else
                 {
-                    isEmptyListLbl.Visible = false;
-                }
+                    post.pinCommentId = default;          //TODO
+                    post.userId = default;                //TODO
 
+                    long id = postRepository.Insert(post);
+                    post.id = id;
+                }
             }
 
         }
+        private void OnShowDialogBack()
+        {
+            Application.RequestStop();
+        }
+
+        public void SetRepository(PostRepository postRepository)
+        {
+            this.postRepository = postRepository;
+            ShowCurrentPage();
+        }
+
+        private void OnOpenPost(ListViewItemEventArgs args)
+        {
+            Post post = (Post)args.Value;
+            OpenPostDialog dialog = new OpenPostDialog();
+            dialog.SetPost(post);
+
+            Application.Run(dialog);
+
+            if (dialog.deleted == true)
+            {
+                ProcessDeletePost(post);
+
+            }
+
+            else if (dialog.updated == true)
+            {
+                ProcessEditPost(dialog, post);
+            }
+
+        }
+
+        private void OnNextButtonClicked()
+        {
+            int totalPages = postRepository.GetTotalPages(pageLength);
+            if (currentPage >= totalPages)
+            {
+                return;
+            }
+
+            this.currentPage++;
+            ShowCurrentPage();
+
+        }
+
+        private void OnPrevButtonClicked()
+        {
+
+            int totalPages = postRepository.GetTotalPages(pageLength);
+            if (currentPage <= 1)
+            {
+                return;
+            }
+
+            this.currentPage--;
+            ShowCurrentPage();
+        }
+
+        private void ShowCurrentPage()
+        {
+            this.currentPageLbl.Text = currentPage.ToString();
+            int totalPages = postRepository.GetTotalPages(pageLength);
+
+            if (totalPages == 0)
+            {
+                totalPages = 1;
+            }
+
+            this.allPagesLbl.Text = totalPages.ToString();
+
+            this.allPostsListView.SetSource(postRepository.GetPageOfPosts(currentPage, pageLength));
+
+            prevPageButton.Visible = (currentPage != 1);
+            nextPageButton.Visible = (currentPage != int.Parse(this.allPagesLbl.Text.ToString()));
+
+            if (postRepository.GetPageOfPosts(currentPage, pageLength).Count == 0)
+            {
+                isEmptyListLbl.Visible = true;
+            }
+
+            else
+            {
+                isEmptyListLbl.Visible = false;
+            }
+
+        }
+
+        private void ProcessDeletePost(Post post)
+        {
+            bool isDeleted = postRepository.Delete(post.id);
+            if (isDeleted)
+            {
+                int countOfPages = postRepository.GetTotalPages(pageLength);
+                if (currentPage > countOfPages && currentPage > 1)
+                {
+                    currentPage--;
+                }
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Delete post", "Can not delete post.", "OK");
+            }
+
+        }
+
+        private void ProcessEditPost(OpenPostDialog dialog, Post post)
+        {
+            Post updatedPost = dialog.GetPost();
+            if (postRepository.Update(updatedPost, post.id))
+            {
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Edit post", "Can not edit post.", "OK");
+            }
+
+        }
+
     }
 }

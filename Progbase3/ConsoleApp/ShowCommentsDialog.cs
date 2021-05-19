@@ -25,6 +25,11 @@ namespace ConsoleApp
 
             };
 
+
+            Button createCommentBtn = new Button(2, 8, "Create comment");
+            createCommentBtn.Clicked += OnCreateCommentClicked;
+            this.Add(createCommentBtn);
+
             allCommentsListView.OpenSelectedItem += OnOpenComment;
             prevPageButton = new Button(28, 14, "<");
             nextPageButton = new Button(44, 14, ">");
@@ -52,6 +57,33 @@ namespace ConsoleApp
 
 
         }
+
+        private void OnCreateCommentClicked()
+        {
+
+            CreateCommentDialog dialog = new CreateCommentDialog();
+            Application.Run(dialog);
+
+            if (dialog.canceled == false)
+            {
+                Comment comment = dialog.GetCommentFromFields();
+                if (comment == null)
+                {
+                    MessageBox.ErrorQuery("Create comment", "Can not create comment.\nAll fields must be filled in the correct format", "OK");
+                }
+
+                else
+                {
+                    comment.userId = default; //TODO
+                    comment.postId = default; //TODO
+
+                    long id = commentRepository.Insert(comment);
+                    comment.id = id;
+                }
+            }
+
+        }
+
         public void SetRepository(CommentRepository commentRepository)
         {
             this.commentRepository = commentRepository;
@@ -61,7 +93,23 @@ namespace ConsoleApp
         private void OnOpenComment(ListViewItemEventArgs args)
         {
 
-            //TODO
+            Comment comment = (Comment)args.Value;
+            OpenCommentDialog dialog = new OpenCommentDialog();
+            dialog.SetComment(comment);
+
+            Application.Run(dialog);
+
+            if (dialog.deleted == true)
+            {
+                ProcessDeleteComment(comment);
+
+            }
+
+            else if (dialog.updated == true)
+            {
+                ProcessEditComment(dialog, comment);
+            }
+
 
         }
 
@@ -116,6 +164,41 @@ namespace ConsoleApp
             else
             {
                 isEmptyListLbl.Visible = false;
+            }
+
+        }
+
+        private void ProcessDeleteComment(Comment comment)
+        {
+            bool isDeleted = commentRepository.Delete(comment.id);
+            if (isDeleted)
+            {
+                int countOfPages = commentRepository.GetTotalPages(pageLength);
+                if (currentPage > countOfPages && currentPage > 1)
+                {
+                    currentPage--;
+                }
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Delete comment", "Can not delete comment.", "OK");
+            }
+
+        }
+
+        private void ProcessEditComment(OpenCommentDialog dialog, Comment comment)
+        {
+            Comment updatedComment = dialog.GetComment();
+            if (commentRepository.Update(updatedComment, comment.id))
+            {
+                ShowCurrentPage();
+            }
+
+            else
+            {
+                MessageBox.ErrorQuery("Edit comment", "Can not edit comment.", "OK");
             }
 
         }

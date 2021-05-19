@@ -87,13 +87,12 @@ public class UserRepository
 
 
 
-    public bool Delete(string userName, int passwordHash)
+    public bool Delete(long id)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"DELETE FROM users WHERE username =$username AND passwordHash=$passwordHash";
-        command.Parameters.AddWithValue("$username", userName);
-        command.Parameters.AddWithValue("$passwordHash", passwordHash);
+        command.CommandText = @"DELETE FROM users WHERE id=$id";
+        command.Parameters.AddWithValue("$id", id);
         int nChanges = command.ExecuteNonQuery();
         connection.Close();
         return nChanges == 1;
