@@ -14,6 +14,8 @@ namespace ConsoleApp
         private Button prevPageButton;
         private Button nextPageButton;
         private UserRepository userRepository;
+        private PostRepository postRepository;
+        private CommentRepository commentRepository;
         private Label isEmptyListLbl;
         public ShowUsersDialog()
         {
@@ -89,9 +91,11 @@ namespace ConsoleApp
             Application.RequestStop();
         }
 
-        public void SetRepository(UserRepository userRepository)
+        public void SetRepository(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
         {
             this.userRepository = userRepository;
+            this.postRepository = postRepository;
+            this.commentRepository = commentRepository;
             ShowCurrentPage();
         }
 
@@ -176,6 +180,8 @@ namespace ConsoleApp
             bool isDeleted = userRepository.Delete(user.id);
             if (isDeleted)
             {
+                postRepository.DeleteAllByUserId(user.id);
+                commentRepository.DeleteAllByUserId(user.id);
                 int countOfPages = userRepository.GetTotalPages(pageLength);
                 if (currentPage > countOfPages && currentPage > 1)
                 {

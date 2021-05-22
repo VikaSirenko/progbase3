@@ -74,9 +74,8 @@ namespace ConsoleApp
                 string[] surname = FindRandomLineInFile(surnamePath, surnameLines).Split(",");
                 string[] name = FindRandomLineInFile(namesPath, namesLines).Split(",");
                 string fullname = name[0] + " " + surname[1];
-                Random random = new Random();
-                int isModeratorNum = default;                                //TODO
-                //int isModeratorNum = random.Next(0, 2);
+                Random random = new Random();                              
+                int isModeratorNum = random.Next(0, 2);
                 User user = new User(userName[0], password, fullname, isModeratorNum);
                 UserRepository userRepository = new UserRepository(connection);
 

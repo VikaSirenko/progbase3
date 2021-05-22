@@ -100,9 +100,7 @@ public class UserRepository
 
     public bool Update(User user, long userId)
     {
-        // bool isExist = this.UserExists(user.userName, user.passwordHash);
-        // if (isExist == false)
-        // {
+        
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"UPDATE users SET username=$username , passwordHash=$passwordHash , fullname=$fullname WHERE id=$id";
@@ -113,7 +111,6 @@ public class UserRepository
         int nChanged = command.ExecuteNonQuery();
         connection.Close();
         return nChanged == 1;
-        // }
 
     }
 

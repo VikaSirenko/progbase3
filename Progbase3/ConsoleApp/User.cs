@@ -18,7 +18,7 @@ public class User
     {
         this.userName = default;
         this.passwordHash = default;
-        this.fullname=default;
+        this.fullname = default;
         this.isModerator = default;
     }
 
@@ -26,7 +26,7 @@ public class User
     {
         this.userName = userName;
         ConvertToHash(password);
-        this.fullname= fullname;
+        this.fullname = fullname;
         this.isModerator = IsModerator(moderatorNum);
     }
 
@@ -72,6 +72,11 @@ public class User
 
         throw new ArgumentException($"Only the numbers [1] and [0] can be in the `isModerator` field, but the number [{moderatorNum}] is written there");
 
+    }
+
+    public override string ToString()
+    {
+        return $"[{id}] | User name:'{userName}' | Full name: '{fullname}'";
     }
 
 }

@@ -169,7 +169,6 @@ public class PostRepository
     }
 
 
-    //???
     public void DeleteAllByUserId(long userId)
     {
         connection.Open();
@@ -215,52 +214,56 @@ public class PostRepository
     }
 
 
-    /*
-        public List<Post> FilterByCoincidence(string value)
+
+    public List<Post> FilterByPostText(string value)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM posts, comments WHERE posts.publicationText LIKE '%' || $value || '%'  AND  posts.id=comments.postId ";
+        command.Parameters.AddWithValue("$value", value);
+
+        SqliteDataReader reader = command.ExecuteReader();
+
+        List<Post> posts = new List<Post>();
+        while (reader.Read())
         {
-            connection.Open();
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM posts, comments WHERE posts.publicationText LIKE '%' || $value || '%'  AND  posts.id=comments.postId ";
-            command.Parameters.AddWithValue("$value", value);
-
-            SqliteDataReader reader = command.ExecuteReader();
-
-            List<Post> posts = new List<Post>();
-            while (reader.Read())
+            Post post = new Post();
+            post = ParsePostData(reader, post);
+            if (!posts.Contains(post))
             {
-                Post post = new Post();
-                post = ParsePostData(reader, post);
-                Comment comment = new Comment();
-                comment = ParseCommentData(reader, comment);
-                post.comments.Add(comment);
                 posts.Add(post);
             }
-            reader.Close();
-            connection.Close();
-            return posts;
+            Comment comment = new Comment();
+            comment = ParseCommentData(reader, comment);
+            post.comments.Add(comment);
         }
 
-        private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
+        reader.Close();
+        connection.Close();
+        return posts;
+    }
+
+
+    private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
+    {
+        bool isId = long.TryParse(reader.GetString(5), out comment.id);
+        bool isCommentedAt = DateTime.TryParse(reader.GetString(7), out comment.commentedAt);
+        bool isUserId = long.TryParse(reader.GetString(8), out comment.userId);
+        bool isPostId = long.TryParse(reader.GetString(9), out comment.postId);
+        if (isId && isUserId && isCommentedAt && isPostId)
         {
-            bool isId = long.TryParse(reader.GetString(0), out comment.id);
-            bool isCommentedAt = DateTime.TryParse(reader.GetString(2), out comment.commentedAt);
-            bool isPostId = long.TryParse(reader.GetString(4), out comment.postId);
-            bool isUserId = long.TryParse(reader.GetString(3), out comment.userId);
-            if (isId && isUserId && isCommentedAt && isPostId)
-            {
-                comment.id = long.Parse(reader.GetString(5));
-                comment.commentText = reader.GetString(6);
-                comment.commentedAt = DateTime.Parse(reader.GetString(7));
-                comment.userId = long.Parse(reader.GetString(8));
-                comment.postId = long.Parse(reader.GetString(9));
-                return comment;
-            }
-            else
-            {
-                throw new FormatException("Values cannot be parsed");
-
-            }
+            comment.id = long.Parse(reader.GetString(5));
+            comment.commentText = reader.GetString(6);
+            comment.commentedAt = DateTime.Parse(reader.GetString(7));
+            comment.userId = long.Parse(reader.GetString(8));
+            comment.postId = long.Parse(reader.GetString(9));
+            return comment;
         }
+        else
+        {
+            throw new FormatException("Values cannot be parsed");
 
-        */
+        }
+    }
+
 }

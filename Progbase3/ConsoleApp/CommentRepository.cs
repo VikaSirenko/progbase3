@@ -194,6 +194,26 @@ public class CommentRepository
 
     }
 
+    public void DeleteAllByUserId(long userId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"DELETE FROM comments WHERE userId=$userId";
+        command.Parameters.AddWithValue("$userId", userId);
+        connection.Close();
+    }
+
+    public void DeleteAllByPostId(long postId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"DELETE FROM comments WHERE postId=$postId";
+        command.Parameters.AddWithValue("$postId", postId);
+        connection.Close();
+    }
+
+
+
 
 
 }

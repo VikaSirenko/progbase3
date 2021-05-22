@@ -8,7 +8,6 @@ namespace ConsoleApp
         public bool updated;
         private User user;
         private Label userNameOutput;
-        // private TextField passwordOutput;
         private Label fullNameOutput;
         private Label isModeratorOutput;
 
@@ -39,25 +38,6 @@ namespace ConsoleApp
                 Y = Pos.Top(userNameLbl),
             };
             this.Add(userNameLbl, userNameOutput);
-
-            //???????????????????????????
-            /*
-                        Label passwordLbl = new Label(coordinateX, 4, "Possword:");
-                        passwordOutput = new TextField()
-                        {
-                            X = rightColumn,
-                            Y = Pos.Top(passwordLbl),
-                            Width = 40,
-                            ReadOnly = true,
-                            Secret = true,
-
-                        };
-
-
-
-                        this.Add(passwordLbl, passwordOutput);
-
-                        */
 
             Label fullNameLbl = new Label(coordinateX, 6, "Full name:");
             fullNameOutput = new Label()

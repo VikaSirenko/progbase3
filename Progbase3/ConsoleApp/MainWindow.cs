@@ -42,13 +42,13 @@ namespace ConsoleApp
         private void OnShowUsersClicked()
         {
             ShowUsersDialog dialog = new ShowUsersDialog();
-            dialog.SetRepository(userRepository);
+            dialog.SetRepository(userRepository, postRepository, commentRepository);
             Application.Run(dialog);
         }
         private void OnShowPostsClicked()
         {
             ShowPostsDialog dialog = new ShowPostsDialog();
-            dialog.SetRepository(postRepository);
+            dialog.SetRepository(postRepository, commentRepository);
             Application.Run(dialog);
         }
 

@@ -23,6 +23,11 @@ public class Post
         this.pinCommentId = default;
     }
 
+    public override string ToString()
+    {
+        return $"[{id}] | Post:'{publicationText}'";
+    }
+
 
 
 }

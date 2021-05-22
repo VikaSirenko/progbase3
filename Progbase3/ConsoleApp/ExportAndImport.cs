@@ -21,7 +21,7 @@ namespace ConsoleApp
 
         }
 
-        public static List<Post> DoImport(string inputFile)
+        public static List<Post> DoImport(string inputFile, PostRepository postRepository, CommentRepository commentRepository)
         {
             try
             {
@@ -31,18 +31,35 @@ namespace ConsoleApp
                     StreamReader reader = new StreamReader(inputFile);
                     List<Post> posts = (List<Post>)serializer.Deserialize(reader);
                     reader.Close();
-                    return posts;
+                    AddImportedDataToDB(posts, postRepository, commentRepository);
 
 
                     //TODO add to BD
 
-                    
+
                 }
                 throw new FileNotFoundException($"Input file [{inputFile}] not found.");
             }
             catch (Exception ex)
             {
                 throw new ArgumentException($"Unable to read data from file [{inputFile}]" + ex.Message);
+            }
+
+        }
+
+        private static void AddImportedDataToDB(List<Post> posts, PostRepository postRepository, CommentRepository commentRepository)
+        {
+            for (int i = 0; i < posts.Count; i++)
+            {
+                if (!postRepository.PostExists(posts[i].id))
+                {
+                    postRepository.Insert(posts[i]);
+                    for (int j = 0; j < posts[i].comments.Count; j++)
+                    {
+                        commentRepository.Insert(posts[i].comments[j]);
+                    }
+
+                }
             }
 
         }
