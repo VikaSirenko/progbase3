@@ -1,5 +1,4 @@
 using Terminal.Gui;
-using System.Collections.Generic;
 
 namespace ConsoleApp
 {
@@ -63,8 +62,6 @@ namespace ConsoleApp
 
 
     }
-
-
 
 
 }

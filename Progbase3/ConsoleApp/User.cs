@@ -25,23 +25,22 @@ public class User
     public User(string userName, string password, string fullname, int moderatorNum)
     {
         this.userName = userName;
-        ConvertToHash(password);
+        this.passwordHash=ConvertToHash(password);
         this.fullname = fullname;
         this.isModerator = IsModerator(moderatorNum);
     }
 
-    public void ConvertToHash(string password)
+    public string ConvertToHash(string password)
     {
         SHA256 sha256Hash = SHA256.Create();
-        this.passwordHash = GetHash(sha256Hash, password);
+        string passwordHash = GetHash(sha256Hash, password);
         sha256Hash.Dispose();
-
+        return passwordHash;
     }
 
 
     private static string GetHash(HashAlgorithm hashAlgorithm, string input)
     {
-
         byte[] data = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
         var sBuilder = new StringBuilder();
         for (int i = 0; i < data.Length; i++)

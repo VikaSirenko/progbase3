@@ -9,6 +9,9 @@ namespace ConsoleApp
         private Post post;
         private TextView publicationTextOutput;
         private Label publishedAtOutput;
+        private TextField pinnedComment;
+        private CommentRepository commentRepository;
+        private Comment comment;
 
 
         public Post GetPost()
@@ -44,7 +47,7 @@ namespace ConsoleApp
 
 
 
-            Label publisherAtLbl = new Label(coordinateX, 11, "Published at:");
+            Label publisherAtLbl = new Label(coordinateX, 10, "Published at:");
             publishedAtOutput = new Label()
             {
                 X = rightColumn,
@@ -52,17 +55,34 @@ namespace ConsoleApp
             };
             this.Add(publisherAtLbl, publishedAtOutput);
 
-
+            Label pinnedComLbl = new Label(coordinateX, 12, "Pin comment");
+            pinnedComment = new TextField()
+            {
+                X = rightColumn,
+                Y = Pos.Top(pinnedComLbl),
+                Width = 40,
+                Height = 8,
+                ReadOnly = true,
+            };
+            this.Add(pinnedComLbl, pinnedComment);
 
         }
 
-        public void SetPost(Post post)
+        public void SetPost(Post post, CommentRepository commentRepository)
         {
+            this.commentRepository = commentRepository;
             this.post = post;
             this.publicationTextOutput.Text = post.publicationText;
             this.publishedAtOutput.Text = post.publishedAt.ToString();
-
-            //??? NEED TO DO output pinned comment text 
+            if (post.pinCommentId != default)
+            {
+                this.comment = commentRepository.GetByCommentId(post.pinCommentId);
+                this.pinnedComment.Text = this.comment.commentText;
+            }
+            else
+            {
+                pinnedComment.Text = "None";
+            }
         }
 
         private void OnOpenDialogBack()
@@ -73,11 +93,17 @@ namespace ConsoleApp
         private void OnOpenDialogEdit()
         {
             EditPostDialog dialog = new EditPostDialog();
-            dialog.SetPost(this.post);
+            dialog.SetPost(this.post, commentRepository);
             Application.Run(dialog);
             if (dialog.canceled == false)
             {
                 Post updatedPost = dialog.GetPostFromFields();
+                if (dialog.selectedComment != null)
+                {
+                    updatedPost.pinCommentId = dialog.selectedComment.id;
+                    this.comment = dialog.selectedComment;
+                }
+
                 if (updatedPost == null)
                 {
                     this.updated = false;
@@ -86,8 +112,8 @@ namespace ConsoleApp
                 {
                     updatedPost.publishedAt = post.publishedAt;
                     updatedPost.userId = post.userId;
-                    updatedPost.pinCommentId = post.pinCommentId;
-                    this.SetPost(updatedPost);
+                    updatedPost.id=post.id;
+                    this.SetPost(updatedPost, commentRepository);
                     this.updated = true;
                 }
             }

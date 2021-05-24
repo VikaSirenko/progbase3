@@ -7,6 +7,7 @@ namespace ConsoleApp
     {
         public bool canceled;
         protected TextView publicationTextInput;
+       
 
         public CreatePostDialog()
         {
@@ -49,7 +50,6 @@ namespace ConsoleApp
         public Post GetPostFromFields()
         {
             Post post = new Post();
-            //bool isPinnedCommentId = long.TryParse(reader.GetString(4), out post.pinCommentId);     //???????
             if (!this.publicationTextInput.Text.IsEmpty)
             {
                 post.publicationText = this.publicationTextInput.Text.ToString();

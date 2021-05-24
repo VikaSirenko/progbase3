@@ -159,6 +159,21 @@ public class CommentRepository
         return count;
     }
 
+    public long GetCountOfFilterComments(long postId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT COUNT(*) FROM comments WHERE postId=$postId";
+        command.Parameters.AddWithValue("$postId", postId);
+        long count = (long)command.ExecuteScalar();
+        connection.Close();
+        return count;
+    }
+     public int GetTotalPagesOfFilterComments(int pageLength, long postId)
+    {
+        return (int)Math.Ceiling(this.GetCountOfFilterComments(postId) / (double)pageLength);
+    }
+
 
     public int GetTotalPages(int pageLength)
     {
@@ -184,7 +199,39 @@ public class CommentRepository
         while (reader.Read())
         {
             Comment comment = new Comment();
-            comment= ParseCommentData(reader, comment);
+            comment = ParseCommentData(reader, comment);
+            commentsList.Add(comment);
+        }
+
+        reader.Close();
+        connection.Close();
+        return commentsList;
+
+    }
+
+
+    public List<Comment> GetPageOfCommentsOfSelectedPost(int pageNumber, int pageLength, long postId)
+    {
+        connection.Open();
+
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM  comments WHERE postId=$postId LIMIT $pageLength OFFSET $pageLength *($pageNumber -1  ) ";
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        command.Parameters.AddWithValue("$postId", postId);
+
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Comment> commentsList = new List<Comment>();
+
+        while (reader.Read())
+        {
+            Comment comment = new Comment();
+            comment = ParseCommentData(reader, comment);
             commentsList.Add(comment);
         }
 

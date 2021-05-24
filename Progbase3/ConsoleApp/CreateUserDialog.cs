@@ -43,7 +43,7 @@ namespace ConsoleApp
 
             this.Add(passwordLbl, passwordInput);
 
-            Label fullNameLbl = new Label(coordinateX, 11, "Full Name:");
+            Label fullNameLbl = new Label(coordinateX, 6, "Full Name:");
             fullNameInput = new TextField()
             {
                 X = rightColumn,
@@ -52,7 +52,7 @@ namespace ConsoleApp
             };
             this.Add(fullNameLbl, fullNameInput);
 
-            Label isModeratorLbl = new Label(coordinateX, 13, "Is moderator:");
+            Label isModeratorLbl = new Label(coordinateX, 8, "Is moderator:");
             isModeratorCheck = new CheckBox()
             {
                 X = rightColumn,
@@ -78,14 +78,17 @@ namespace ConsoleApp
 
         public User GetUserFromFields()
         {
-            User user = new User();
-            string[] fullName = this.fullNameInput.Text.ToString().Split("");
-            if (!userNameInput.Text.IsEmpty && !passwordInput.Text.IsEmpty && !fullNameInput.Text.IsEmpty && fullName.Length == 2) //??
+
+            string[] fullName = this.fullNameInput.Text.ToString().Split(" ");
+            if (userNameInput.Text != "" && passwordInput.Text != "" && fullNameInput.Text != "" && fullName.Length == 2) //??
             {
-                user.userName = this.userNameInput.Text.ToString();
-                user.passwordHash = this.passwordInput.Text.ToString();
-                user.fullname = this.fullNameInput.Text.ToString();
-                user.isModerator = this.isModeratorCheck.Checked;
+                int moderatorNum = default;
+                if (isModeratorCheck.Checked == true)
+                    moderatorNum = 1;
+                else
+                    moderatorNum = 0;
+
+                User user = new User(userNameInput.Text.ToString(), passwordInput.Text.ToString(), fullNameInput.Text.ToString(), moderatorNum);
                 return user;
             }
 

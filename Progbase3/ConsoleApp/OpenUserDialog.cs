@@ -11,7 +11,7 @@ namespace ConsoleApp
         private Label fullNameOutput;
         private Label isModeratorOutput;
 
-        public User GetTask()
+        public User GetUser()
         {
             return user;
         }
@@ -31,7 +31,7 @@ namespace ConsoleApp
             this.AddButton(deleteBtn);
             this.AddButton(backBtn);
 
-            Label userNameLbl = new Label(coordinateX, 2, "User name:");
+            Label userNameLbl = new Label(coordinateX, 4, "User name:");
             userNameOutput = new Label()
             {
                 X = rightColumn,
@@ -62,7 +62,6 @@ namespace ConsoleApp
         {
             this.user = user;
             this.userNameOutput.Text = user.userName;
-            // this.passwordOutput.Text=user.passwordHash;
             this.fullNameOutput.Text = user.fullname;
             this.isModeratorOutput.Text = user.isModerator.ToString();
         }

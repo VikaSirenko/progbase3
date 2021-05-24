@@ -20,7 +20,7 @@ namespace ConsoleApp
         public ShowUsersDialog()
         {
             this.Title = "Show users";
-            Button backBtn = new Button("Back");
+            Button backBtn = new Button(30, 21, "Back");
             backBtn.Clicked += OnShowDialogBack;
             this.Add(backBtn);
             allUsersListView = new ListView(new List<User>())
@@ -30,19 +30,21 @@ namespace ConsoleApp
 
             };
 
-            Button createUserBtn = new Button(2, 4, "Create user");
+            Button createUserBtn = new Button(4, 18, "Create user");
             createUserBtn.Clicked += OnCreateUserClicked;
             this.Add(createUserBtn);
 
             allUsersListView.OpenSelectedItem += OnOpenUser;
-            prevPageButton = new Button(28, 14, "<");
-            nextPageButton = new Button(44, 14, ">");
-            this.currentPageLbl = new Label(36, 14, "?");
-            Label slash = new Label(38, 14, "/");
-            this.allPagesLbl = new Label(40, 14, "?");
+            prevPageButton = new Button(22, 14, "<");
+            nextPageButton = new Button(38, 14, ">");
+            this.currentPageLbl = new Label(30, 14, "?");
+            Label slash = new Label(32, 14, "/");
+            this.allPagesLbl = new Label(34, 14, "?");
+            
 
             nextPageButton.Clicked += OnNextButtonClicked;
             prevPageButton.Clicked += OnPrevButtonClicked;
+            this.Add(prevPageButton, nextPageButton, currentPageLbl, allPagesLbl, slash);
 
             FrameView frameView = new FrameView("Users")
             {
@@ -60,7 +62,10 @@ namespace ConsoleApp
             isEmptyListLbl.Visible = false;
 
 
+
+
         }
+
 
         private void OnCreateUserClicked()
         {
@@ -80,6 +85,7 @@ namespace ConsoleApp
                 {
                     long id = userRepository.Insert(user);
                     user.id = id;
+                    ShowCurrentPage();
                 }
             }
 
@@ -101,8 +107,8 @@ namespace ConsoleApp
 
         private void OnOpenUser(ListViewItemEventArgs args)
         {
-            OpenUserDialog dialog = new OpenUserDialog();
             User user = (User)args.Value;
+            OpenUserDialog dialog = new OpenUserDialog();
             dialog.SetUser(user);
 
             Application.Run(dialog);
@@ -199,9 +205,14 @@ namespace ConsoleApp
 
         private void ProcessEditUser(OpenUserDialog dialog, User user)
         {
-            User updatedUser = dialog.GetTask();
+
+            User updatedUser = dialog.GetUser();
             if (userRepository.Update(updatedUser, user.id))
             {
+                if (user.passwordHash == user.ConvertToHash(""))
+                {
+                    updatedUser.passwordHash = user.passwordHash;
+                }
                 ShowCurrentPage();
             }
 

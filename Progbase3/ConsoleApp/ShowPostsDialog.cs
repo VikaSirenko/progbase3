@@ -21,29 +21,32 @@ namespace ConsoleApp
         public ShowPostsDialog()
         {
             this.Title = "Show posts";
-            allPostsListView = new ListView(new List<User>())
+            allPostsListView = new ListView(new List<Post>())
             {
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
 
             };
-            Button backBtn = new Button("Back");
+            Button backBtn = new Button(30, 21, "Back");
             backBtn.Clicked += OnShowDialogBack;
             this.Add(backBtn);
 
-            Button createPostBtn = new Button(2, 6, "Create post");
+            Button createPostBtn = new Button(4, 18, "Create post");
             createPostBtn.Clicked += OnCreatePostClicked;
             this.Add(createPostBtn);
 
             allPostsListView.OpenSelectedItem += OnOpenPost;
-            prevPageButton = new Button(28, 14, "<");
-            nextPageButton = new Button(44, 14, ">");
-            this.currentPageLbl = new Label(36, 14, "?");
-            Label slash = new Label(38, 14, "/");
-            this.allPagesLbl = new Label(40, 14, "?");
+            prevPageButton = new Button(22, 14, "<");
+            nextPageButton = new Button(38, 14, ">");
+            this.currentPageLbl = new Label(30, 14, "?");
+            Label slash = new Label(32, 14, "/");
+            this.allPagesLbl = new Label(34, 14, "?");
+
 
             nextPageButton.Clicked += OnNextButtonClicked;
             prevPageButton.Clicked += OnPrevButtonClicked;
+            this.Add(prevPageButton, nextPageButton, currentPageLbl, allPagesLbl, slash);
+
 
             FrameView frameView = new FrameView("Posts")
             {
@@ -60,6 +63,8 @@ namespace ConsoleApp
             frameView.Add(isEmptyListLbl);
             isEmptyListLbl.Visible = false;
 
+
+            
 
         }
 
@@ -104,7 +109,7 @@ namespace ConsoleApp
         {
             Post post = (Post)args.Value;
             OpenPostDialog dialog = new OpenPostDialog();
-            dialog.SetPost(post);
+            dialog.SetPost(post, commentRepository);
 
             Application.Run(dialog);
 

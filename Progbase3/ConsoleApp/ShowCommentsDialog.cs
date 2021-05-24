@@ -18,7 +18,7 @@ namespace ConsoleApp
         public ShowCommentsDialog()
         {
             this.Title = "Show comments";
-            allCommentsListView = new ListView(new List<User>())
+            allCommentsListView = new ListView(new List<Comment>())
             {
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
@@ -26,19 +26,22 @@ namespace ConsoleApp
             };
 
 
-            Button createCommentBtn = new Button(2, 8, "Create comment");
+            Button createCommentBtn = new Button(4, 18, "Create comment");
             createCommentBtn.Clicked += OnCreateCommentClicked;
             this.Add(createCommentBtn);
 
             allCommentsListView.OpenSelectedItem += OnOpenComment;
-            prevPageButton = new Button(28, 14, "<");
-            nextPageButton = new Button(44, 14, ">");
-            this.currentPageLbl = new Label(36, 14, "?");
-            Label slash = new Label(38, 14, "/");
-            this.allPagesLbl = new Label(40, 14, "?");
+            prevPageButton = new Button(22, 14, "<");
+            nextPageButton = new Button(38, 14, ">");
+            this.currentPageLbl = new Label(30, 14, "?");
+            Label slash = new Label(32, 14, "/");
+            this.allPagesLbl = new Label(34, 14, "?");
 
             nextPageButton.Clicked += OnNextButtonClicked;
             prevPageButton.Clicked += OnPrevButtonClicked;
+
+            this.Add(prevPageButton, nextPageButton, currentPageLbl, allPagesLbl, slash);
+
 
             FrameView frameView = new FrameView("Comments")
             {
@@ -55,7 +58,16 @@ namespace ConsoleApp
             frameView.Add(isEmptyListLbl);
             isEmptyListLbl.Visible = false;
 
+            Button backBtn = new Button(30, 21, "Back");
+            this.Add(backBtn);
+            backBtn.Clicked += OnOkButtonClicked;
 
+
+        }
+
+        private void OnOkButtonClicked()
+        {
+            Application.RequestStop();
         }
 
         private void OnCreateCommentClicked()
@@ -79,6 +91,7 @@ namespace ConsoleApp
 
                     long id = commentRepository.Insert(comment);
                     comment.id = id;
+                    ShowCurrentPage();
                 }
             }
 

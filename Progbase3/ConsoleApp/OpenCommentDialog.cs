@@ -58,7 +58,7 @@ namespace ConsoleApp
         {
             this.comment = comment;
             this.commentTextOutput.Text = comment.commentText;
-            this.commentedAtOutput.Text = comment.commentedAt.ToString();
+            this.commentedAtOutput.Text = comment.commentedAt.ToString(); // dont work ...........
         }
 
         private void OnOpenDialogBack()
