@@ -65,7 +65,7 @@ public class UserRepository
         return newId;
     }
 
-    public User GetUser(string userName, int passwordHash)
+    public User GetUser(string userName, string passwordHash)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();

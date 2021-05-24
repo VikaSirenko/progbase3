@@ -22,7 +22,4 @@ public class Comment
         return $"[{id}] | Comment:'{commentText}'";
     }
 
-
-
-
 }

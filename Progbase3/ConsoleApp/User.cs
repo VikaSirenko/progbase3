@@ -1,7 +1,6 @@
-using System.Security.Cryptography;
 using System;
-using System.Text;
 using System.Collections.Generic;
+
 
 public class User
 {
@@ -25,38 +24,11 @@ public class User
     public User(string userName, string password, string fullname, int moderatorNum)
     {
         this.userName = userName;
-        this.passwordHash=ConvertToHash(password);
+        this.passwordHash = Authentication.ConvertToHash(password);
         this.fullname = fullname;
         this.isModerator = IsModerator(moderatorNum);
     }
 
-    public string ConvertToHash(string password)
-    {
-        SHA256 sha256Hash = SHA256.Create();
-        string passwordHash = GetHash(sha256Hash, password);
-        sha256Hash.Dispose();
-        return passwordHash;
-    }
-
-
-    private static string GetHash(HashAlgorithm hashAlgorithm, string input)
-    {
-        byte[] data = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
-        var sBuilder = new StringBuilder();
-        for (int i = 0; i < data.Length; i++)
-        {
-            sBuilder.Append(data[i].ToString("x2"));
-        }
-        return sBuilder.ToString();
-    }
-
-
-    private static bool VerifyHash(HashAlgorithm hashAlgorithm, string input, string hash)
-    {
-        var hashOfInput = GetHash(hashAlgorithm, input);
-        StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-        return comparer.Compare(hashOfInput, hash) == 0;
-    }
 
     public bool IsModerator(int moderatorNum)
     {
@@ -79,3 +51,4 @@ public class User
     }
 
 }
+

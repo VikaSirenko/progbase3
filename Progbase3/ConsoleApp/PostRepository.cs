@@ -243,6 +243,33 @@ public class PostRepository
         return posts;
     }
 
+    public List<Post> GetPageOfUserPosts(long userId, int pageNumber, int pageLength)
+    {
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM posts WHERE  userId=$userId  LIMIT $pageLength OFFSET $pageLength *($pageNumber -1 )";
+        command.Parameters.AddWithValue("$userId", userId);
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        SqliteDataReader reader = command.ExecuteReader();                       
+
+        List<Post> posts = new List<Post>();
+        while (reader.Read())
+        {
+            Post post = new Post();
+            post = ParsePostData(reader, post);
+            posts.Add(post);
+        }
+
+        reader.Close();
+        connection.Close();
+        return posts;
+    }
+
 
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {

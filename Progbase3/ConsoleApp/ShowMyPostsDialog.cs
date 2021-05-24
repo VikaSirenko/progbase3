@@ -1,9 +1,10 @@
 using Terminal.Gui;
 using System.Collections.Generic;
 
-public class ShowPostsDialog : Dialog
+public class ShowMyPostsDialog : Dialog
 {
     private ListView allPostsListView;
+    private User currentUser;
     private int pageLength = 10;
     private int currentPage = 1;
     private Label currentPageLbl;
@@ -13,11 +14,9 @@ public class ShowPostsDialog : Dialog
     private PostRepository postRepository;
     private CommentRepository commentRepository;
     private Label isEmptyListLbl;
-    private User currentUser;
-    public ShowPostsDialog(User currentUser)
+    public ShowMyPostsDialog()
     {
-        this.currentUser = currentUser;
-        this.Title = "Show posts";
+        this.Title = "Show my posts";
         allPostsListView = new ListView(new List<Post>())
         {
             Width = Dim.Fill(),
@@ -28,11 +27,9 @@ public class ShowPostsDialog : Dialog
         backBtn.Clicked += OnShowDialogBack;
         this.Add(backBtn);
 
-
         Button createPostBtn = new Button(4, 18, "Create post");
         createPostBtn.Clicked += OnCreatePostClicked;
         this.Add(createPostBtn);
-
 
         allPostsListView.OpenSelectedItem += OnOpenPost;
         prevPageButton = new Button(22, 14, "<");
@@ -61,6 +58,7 @@ public class ShowPostsDialog : Dialog
         isEmptyListLbl = new Label("There is no posts.");
         frameView.Add(isEmptyListLbl);
         isEmptyListLbl.Visible = false;
+
 
     }
 
@@ -94,8 +92,9 @@ public class ShowPostsDialog : Dialog
         Application.RequestStop();
     }
 
-    public void SetData(PostRepository postRepository, CommentRepository commentRepository)
+    public void SetData(PostRepository postRepository, CommentRepository commentRepository, User currentUser)
     {
+        this.currentUser = currentUser;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         ShowCurrentPage();
@@ -160,12 +159,12 @@ public class ShowPostsDialog : Dialog
 
         this.allPagesLbl.Text = totalPages.ToString();
 
-        this.allPostsListView.SetSource(postRepository.GetPageOfPosts(currentPage, pageLength));
+        this.allPostsListView.SetSource(postRepository.GetPageOfUserPosts(currentUser.id, currentPage, pageLength));
 
         prevPageButton.Visible = (currentPage != 1);
         nextPageButton.Visible = (currentPage != int.Parse(this.allPagesLbl.Text.ToString()));
 
-        if (postRepository.GetPageOfPosts(currentPage, pageLength).Count == 0)
+        if (postRepository.GetPageOfUserPosts(currentUser.id, currentPage, pageLength).Count == 0)
         {
             isEmptyListLbl.Visible = true;
         }
@@ -213,5 +212,6 @@ public class ShowPostsDialog : Dialog
 
     }
 
-}
 
+
+}

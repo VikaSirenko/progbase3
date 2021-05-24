@@ -1,8 +1,7 @@
 using Terminal.Gui;
 using System.Collections.Generic;
 
-namespace ConsoleApp
-{
+
     public class ChooseCommentDialog : Dialog
     {
         private ListView allCommentsListView;
@@ -158,4 +157,3 @@ namespace ConsoleApp
         }
 
     }
-}

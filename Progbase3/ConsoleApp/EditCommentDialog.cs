@@ -1,15 +1,12 @@
-namespace ConsoleApp
+public class EditCommentDialog : CreateCommentDialog
 {
-    public class EditCommentDialog:CreateCommentDialog
+    public EditCommentDialog()
     {
-        public EditCommentDialog()
-        {
-            this.Title = "Edit comment";
-        }
+        this.Title = "Edit comment";
+    }
 
-        public void SetComment(Comment comment)
-        {
-            this.commentTextInput.Text = comment.commentText;
-        }
+    public void SetComment(Comment comment)
+    {
+        this.commentTextInput.Text = comment.commentText;
     }
 }
