@@ -100,14 +100,19 @@ public class UserRepository
 
     public bool Update(User user, long userId)
     {
-        
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"UPDATE users SET username=$username , passwordHash=$passwordHash , fullname=$fullname WHERE id=$id";
+        command.CommandText = @"UPDATE users SET username=$username , passwordHash=$passwordHash , fullname=$fullname , isModerator=$isModerator WHERE id=$id";
         command.Parameters.AddWithValue("$id", userId);
         command.Parameters.AddWithValue("$username", user.userName);
         command.Parameters.AddWithValue("$passwordHash", user.passwordHash);
         command.Parameters.AddWithValue("$fullname", user.fullname);
+        int moderatorNum = default;
+        if (user.isModerator == true)
+            moderatorNum = 1;
+        else
+            moderatorNum = 0;
+        command.Parameters.AddWithValue("$isModerator", moderatorNum);
         int nChanged = command.ExecuteNonQuery();
         connection.Close();
         return nChanged == 1;

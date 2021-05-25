@@ -150,7 +150,7 @@ public class ShowMyPostsDialog : Dialog
     private void ShowCurrentPage()
     {
         this.currentPageLbl.Text = currentPage.ToString();
-        int totalPages = postRepository.GetTotalPages(pageLength);
+        int totalPages = postRepository.GetTotalPagesOfSelectedPosts (pageLength, currentUser.id);
 
         if (totalPages == 0)
         {

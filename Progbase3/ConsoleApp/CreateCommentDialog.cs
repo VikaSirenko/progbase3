@@ -52,6 +52,8 @@ public class CreateCommentDialog : Dialog
         {
             comment.commentText = this.commentTextInput.Text.ToString();
             comment.commentedAt = DateTime.Now;
+            comment.userId = default;
+            comment.postId = default;
             return comment;
         }
 

@@ -87,9 +87,9 @@ public class OpenPostDialog : Dialog
 
     private void OnShowCommentsClicked()
     {
-           DialogOfSelectedPostComments dialog= new DialogOfSelectedPostComments();
-           dialog.SetData(commentRepository, post.id);
-           Application.Run(dialog);
+        DialogOfSelectedPostComments dialog = new DialogOfSelectedPostComments();
+        dialog.SetData(commentRepository, post.id, currentUser);
+        Application.Run(dialog);
     }
 
     public void SetData(Post post, CommentRepository commentRepository)

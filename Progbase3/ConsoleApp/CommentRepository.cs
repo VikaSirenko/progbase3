@@ -52,27 +52,29 @@ public class CommentRepository
 
     }
 
-    public List<Comment> GetAllByPostId(long postId)
-    {
-        connection.Open();
-        SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"SELECT * FROM comments WHERE postId = $postId";
-        command.Parameters.AddWithValue("$userId", postId);
-        SqliteDataReader reader = command.ExecuteReader();
-        List<Comment> comments = new List<Comment>();
-
-        while (reader.Read())
+    /*
+        public List<Comment> GetAllByPostId(long postId)
         {
-            Comment comment = new Comment();
-            comment = ParseCommentData(reader, comment);
-            comments.Add(comment);
+            connection.Open();
+            SqliteCommand command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM comments WHERE postId = $postId";
+            command.Parameters.AddWithValue("$userId", postId);
+            SqliteDataReader reader = command.ExecuteReader();
+            List<Comment> comments = new List<Comment>();
+
+            while (reader.Read())
+            {
+                Comment comment = new Comment();
+                comment = ParseCommentData(reader, comment);
+                comments.Add(comment);
+            }
+
+            reader.Close();
+            connection.Close();
+            return comments;
+
         }
-
-        reader.Close();
-        connection.Close();
-        return comments;
-
-    }
+        */
 
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {
@@ -169,7 +171,7 @@ public class CommentRepository
         connection.Close();
         return count;
     }
-     public int GetTotalPagesOfFilterComments(int pageLength, long postId)
+    public int GetTotalPagesOfFilterComments(int pageLength, long postId)
     {
         return (int)Math.Ceiling(this.GetCountOfFilterComments(postId) / (double)pageLength);
     }

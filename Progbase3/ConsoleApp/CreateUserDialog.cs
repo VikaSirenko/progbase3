@@ -9,6 +9,7 @@ public class CreateUserDialog : Dialog
     protected TextField fullNameInput;
     protected CheckBox isModeratorCheck;
     private bool isRegistration;
+    private Label isModeratorLbl;
 
     public CreateUserDialog()
     {
@@ -53,24 +54,26 @@ public class CreateUserDialog : Dialog
         };
         this.Add(fullNameLbl, fullNameInput);
 
+        isModeratorLbl = new Label(2, 8, "Is moderator:");
+        isModeratorCheck = new CheckBox()
+        {
+            X = 25,
+            Y = Pos.Top(isModeratorLbl),
+            Width = 40,
+
+        };
+        this.Add(isModeratorLbl, isModeratorCheck);
+
 
     }
 
     public void SetRegistration(bool isRegistration)
     {
         this.isRegistration = isRegistration;
-        if (isRegistration == false)
+        if (isRegistration == true)
         {
-            Label isModeratorLbl = new Label(2, 8, "Is moderator:");
-            isModeratorCheck = new CheckBox()
-            {
-                X = 25,
-                Y = Pos.Top(isModeratorLbl),
-                Width = 40,
-
-            };
-            this.Add(isModeratorLbl, isModeratorCheck);
-
+            isModeratorCheck.Visible = false;
+            isModeratorLbl.Visible = false;
         }
     }
 
@@ -88,9 +91,8 @@ public class CreateUserDialog : Dialog
 
     public User GetUserFromFields()
     {
-
         string[] fullName = this.fullNameInput.Text.ToString().Split(" ");
-        if (userNameInput.Text != "" && passwordInput.Text != "" && fullNameInput.Text != "" && fullName.Length == 2)
+        if (!userNameInput.Text.IsEmpty && !passwordInput.Text.IsEmpty && !fullNameInput.Text.IsEmpty && fullName.Length == 2)
         {
             int moderatorNum = default;
             if (isRegistration == false)
@@ -104,8 +106,10 @@ public class CreateUserDialog : Dialog
             {
                 moderatorNum = 0;
             }
+
             User user = new User(userNameInput.Text.ToString(), passwordInput.Text.ToString(), fullNameInput.Text.ToString(), moderatorNum);
             return user;
+
         }
 
         return null;

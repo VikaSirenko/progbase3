@@ -10,7 +10,7 @@ public class MainWindow : Window
 
     public MainWindow(User currentUser)
     {
-        this.currentUser=currentUser;
+        this.currentUser = currentUser;
         this.Title = "My social network";
 
         Label greetingLbl = new Label(2, 4, $"Hi, {currentUser.fullname}");
@@ -30,6 +30,10 @@ public class MainWindow : Window
             showCommentsBtn.Clicked += OnShowCommentsClicked;
             this.Add(showCommentsBtn);
 
+            Button showMyPostsBtn = new Button(2, 14, "Show my posts");
+            showMyPostsBtn.Clicked += OnShowMyPostsClicked;
+            this.Add(showMyPostsBtn);
+
         }
         else
         {
@@ -38,7 +42,7 @@ public class MainWindow : Window
             showUsersBtn.Clicked += OnShowUsersClicked;
             this.Add(showUsersBtn);
 
-            Button showPostsBtn = new Button(2, 10, "Show all posts"); 
+            Button showPostsBtn = new Button(2, 10, "Show all posts");
             showPostsBtn.Clicked += OnShowPostsClicked;
             this.Add(showPostsBtn);
 
@@ -48,6 +52,39 @@ public class MainWindow : Window
 
         }
 
+        MenuBar menu = new MenuBar(new MenuBarItem[] {
+                new MenuBarItem ("File", new MenuItem [] {
+                    new MenuItem ("Import posts","", OnImport),
+                    new MenuItem("Export posts", "", OnExport),
+                    new MenuItem("Exit", "", OnExit)
+                }),
+                new MenuBarItem("Help", new MenuItem[]{
+                })
+            });
+
+        this.Add(menu);
+
+
+    }
+
+    private void OnImport()
+    {
+        ImportPostDialog dialog = new ImportPostDialog();
+        dialog.SetData(postRepository, commentRepository);
+        Application.Run(dialog);
+
+    }
+
+    private void OnExport()
+    {
+        ExportPostDialog dialog = new ExportPostDialog();
+        dialog.SetData(postRepository);
+        Application.Run(dialog);
+    }
+
+    private void OnExit()
+    {
+        Application.RequestStop();
     }
 
     public void OnShowMyPostsClicked()
@@ -65,7 +102,7 @@ public class MainWindow : Window
         this.commentRepository = commentRepository;
     }
 
-    private void OnShowUsersClicked()  //done
+    private void OnShowUsersClicked()
     {
         ShowUsersDialog dialog = new ShowUsersDialog(currentUser);
         dialog.SetData(userRepository, postRepository, commentRepository);

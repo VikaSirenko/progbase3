@@ -225,13 +225,14 @@ public class PostRepository
         SqliteDataReader reader = command.ExecuteReader();
 
         List<Post> posts = new List<Post>();
+        Post post = new Post();
         while (reader.Read())
         {
-            Post post = new Post();
             post = ParsePostData(reader, post);
-            if (!posts.Contains(post))
+            if (!posts.Contains(post))                  //fix
             {
                 posts.Add(post);
+                post.comments = new List<Comment>();
             }
             Comment comment = new Comment();
             comment = ParseCommentData(reader, comment);
@@ -255,7 +256,7 @@ public class PostRepository
         command.Parameters.AddWithValue("$userId", userId);
         command.Parameters.AddWithValue("$pageLength", pageLength);
         command.Parameters.AddWithValue("$pageNumber", pageNumber);
-        SqliteDataReader reader = command.ExecuteReader();                       
+        SqliteDataReader reader = command.ExecuteReader();
 
         List<Post> posts = new List<Post>();
         while (reader.Read())
@@ -291,6 +292,21 @@ public class PostRepository
             throw new FormatException("Values cannot be parsed");
 
         }
+    }
+
+    public long GetCountOfSelectedPosts(long userId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT COUNT(*) FROM posts WHERE userId=$userId";
+        command.Parameters.AddWithValue("$userId", userId);
+        long count = (long)command.ExecuteScalar();
+        connection.Close();
+        return count;
+    }
+    public int GetTotalPagesOfSelectedPosts(int pageLength, long userId)
+    {
+        return (int)Math.Ceiling(this.GetCountOfSelectedPosts(userId) / (double)pageLength);
     }
 
 }

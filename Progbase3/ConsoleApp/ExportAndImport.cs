@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
-using System;
 
 
 public static class ExportAndImport
@@ -17,32 +16,16 @@ public static class ExportAndImport
         XmlWriter writer = XmlWriter.Create(output, settings);
         serializer.Serialize(output, posts);
         output.Close();
-
     }
 
-    public static List<Post> DoImport(string inputFile, PostRepository postRepository, CommentRepository commentRepository)
+    public static void DoImport(string inputFile, PostRepository postRepository, CommentRepository commentRepository)
     {
-        try
-        {
-            if (File.Exists(inputFile))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<Post>));
-                StreamReader reader = new StreamReader(inputFile);
-                List<Post> posts = (List<Post>)serializer.Deserialize(reader);
-                reader.Close();
-                AddImportedDataToDB(posts, postRepository, commentRepository);
 
-
-                //TODO add to BD
-
-
-            }
-            throw new FileNotFoundException($"Input file [{inputFile}] not found.");
-        }
-        catch (Exception ex)
-        {
-            throw new ArgumentException($"Unable to read data from file [{inputFile}]" + ex.Message);
-        }
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Post>));
+        StreamReader reader = new StreamReader(inputFile);
+        List<Post> posts = (List<Post>)serializer.Deserialize(reader);
+        reader.Close();
+        AddImportedDataToDB(posts, postRepository, commentRepository);
 
     }
 
@@ -50,15 +33,13 @@ public static class ExportAndImport
     {
         for (int i = 0; i < posts.Count; i++)
         {
-            if (!postRepository.PostExists(posts[i].id))
-            {
-                postRepository.Insert(posts[i]);
-                for (int j = 0; j < posts[i].comments.Count; j++)
-                {
-                    commentRepository.Insert(posts[i].comments[j]);
-                }
 
+            postRepository.Insert(posts[i]);
+            for (int j = 0; j < posts[i].comments.Count; j++)
+            {
+                commentRepository.Insert(posts[i].comments[j]);
             }
+
         }
 
     }

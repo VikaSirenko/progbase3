@@ -14,6 +14,7 @@ public class DialogOfSelectedPostComments : Dialog
     public Comment selectedComment;
     private Label isEmptyListLbl;
     private long selectedPostId;
+    private User currentUser;
 
     public DialogOfSelectedPostComments()
     {
@@ -25,7 +26,7 @@ public class DialogOfSelectedPostComments : Dialog
 
         };
 
-        allCommentsListView.OpenSelectedItem += OnSelectedItem;
+        allCommentsListView.OpenSelectedItem += OnOpenCommentClicked;
         prevPageButton = new Button(22, 14, "<");
         nextPageButton = new Button(38, 14, ">");
         this.currentPageLbl = new Label(30, 14, "?");
@@ -57,7 +58,89 @@ public class DialogOfSelectedPostComments : Dialog
         frameView.Add(isEmptyListLbl);
         isEmptyListLbl.Visible = false;
 
+        Button commentedBtn = new Button(4, 18, "Leave a comment");
+        commentedBtn.Clicked += OnLeaveComment;
+        this.Add(commentedBtn);
+    }
 
+    private void OnOpenCommentClicked(ListViewItemEventArgs args)
+    {
+        Comment comment = (Comment)args.Value;
+        OpenCommentDialog dialog = new OpenCommentDialog(currentUser, comment);
+        dialog.SetData(comment);
+
+        Application.Run(dialog);
+
+        if (dialog.deleted == true)
+        {
+            ProcessDeleteComment(comment);
+
+        }
+
+        else if (dialog.updated == true)
+        {
+            ProcessEditComment(dialog, comment);
+        }
+
+    }
+    private void ProcessDeleteComment(Comment comment)
+    {
+        bool isDeleted = commentRepository.Delete(comment.id);
+        if (isDeleted)
+        {
+            int countOfPages = commentRepository.GetTotalPages(pageLength);
+            if (currentPage > countOfPages && currentPage > 1)
+            {
+                currentPage--;
+            }
+            ShowCurrentPage();
+        }
+
+        else
+        {
+            MessageBox.ErrorQuery("Delete comment", "Can not delete comment.", "OK");
+        }
+
+    }
+
+    private void ProcessEditComment(OpenCommentDialog dialog, Comment comment)
+    {
+        Comment updatedComment = dialog.GetComment();
+        if (commentRepository.Update(updatedComment, comment.id))
+        {
+            ShowCurrentPage();
+        }
+
+        else
+        {
+            MessageBox.ErrorQuery("Edit comment", "Can not edit comment.", "OK");
+        }
+
+    }
+
+    private void OnLeaveComment()
+    {
+        CreateCommentDialog dialog = new CreateCommentDialog();
+        Application.Run(dialog);
+
+        if (dialog.canceled == false)
+        {
+            Comment comment = dialog.GetCommentFromFields();
+            if (comment == null)
+            {
+                MessageBox.ErrorQuery("Create comment", "Can not create comment.\nAll fields must be filled in the correct format", "OK");
+            }
+
+            else
+            {
+                comment.userId = currentUser.id;
+                comment.postId = selectedPostId;
+
+                long id = commentRepository.Insert(comment);
+                comment.id = id;
+                ShowCurrentPage();
+            }
+        }
     }
 
     private void OnBackBtnClicked()
@@ -65,22 +148,9 @@ public class DialogOfSelectedPostComments : Dialog
         Application.RequestStop();
     }
 
-    private void OnSelectedItem(ListViewItemEventArgs args)
+    public void SetData(CommentRepository commentRepository, long postId, User currentUser)
     {
-        Comment comment = (Comment)args.Value;
-
-        int index = MessageBox.Query("Pin comment", "Are you sure you want to pin this comment?", "No", "Yes");
-        if (index == 1)
-        {
-            selectedComment = comment;
-            Application.RequestStop();
-        }
-
-    }
-
-
-    public void SetData(CommentRepository commentRepository, long postId)
-    {
+        this.currentUser = currentUser;
         this.selectedPostId = postId;
         this.commentRepository = commentRepository;
         ShowCurrentPage();
