@@ -73,7 +73,7 @@ public class ImportPostDialog : Dialog
         }
         else
         {
-            fileLabel.Text = null;
+            fileLabel.Text = "";
         }
 
     }

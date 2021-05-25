@@ -3,8 +3,8 @@ using System.Collections.Generic;
 public class ExportPostDialog : Dialog
 {
     private TextField coincidenceInput;
-    private TextField exportFileNameInput;
     private PostRepository postRepository;
+    private Label fileLabel;
 
     public ExportPostDialog()
     {
@@ -16,6 +16,18 @@ public class ExportPostDialog : Dialog
         this.AddButton(cancelBtn);
         this.AddButton(okBtn);
 
+        Button selectedBtn = new Button(4, 8, "Open file");
+        selectedBtn.Clicked += SelectFile;
+
+        fileLabel = new Label("")
+        {
+            X = Pos.Right(selectedBtn) + 2,
+            Y = Pos.Top(selectedBtn),
+            Width = Dim.Fill(),
+        };
+
+        this.Add(selectedBtn, fileLabel);
+
         Label coincidenceLbl = new Label(4, 4, "Enter text to filter:");
         coincidenceInput = new TextField()
         {
@@ -25,14 +37,25 @@ public class ExportPostDialog : Dialog
         };
         this.Add(coincidenceInput, coincidenceLbl);
 
-        Label exportFileName = new Label(4, 8, "Export file name");
-        exportFileNameInput = new TextField()
+
+    }
+
+    private void SelectFile()
+    {
+        OpenDialog dialog = new OpenDialog("Open XML file", "Open?");
+        dialog.DirectoryPath = "/home/vika/projects/progbase3/data/importAndExportFiles";
+        Application.Run(dialog);
+
+        if (!dialog.Canceled)
         {
-            X = 25,
-            Y = Pos.Top(exportFileName),
-            Width = 40,
-        };
-        this.Add(exportFileName, exportFileNameInput);
+            NStack.ustring filePath = dialog.FilePath;
+            fileLabel.Text = filePath;
+        }
+        else
+        {
+            fileLabel.Text = "";
+        }
+
     }
 
 
@@ -54,14 +77,13 @@ public class ExportPostDialog : Dialog
 
     private void DoExportPost()
     {
-        if (!coincidenceInput.Text.IsEmpty && !exportFileNameInput.Text.IsEmpty)
+        if (!coincidenceInput.Text.IsEmpty && !fileLabel.Text.IsEmpty)
         {
-            string outputFile = $"/home/vika/projects/progbase3/data/importAndExportFiles/{exportFileNameInput.Text}.xml";
             List<Post> filtredPosts = postRepository.FilterByPostText(coincidenceInput.Text.ToString());
             try
             {
-                ExportAndImport.DoExport(filtredPosts, outputFile);
-                MessageBox.Query("Exported", $"Data exported. File path:'{outputFile}'", "OK");
+                ExportAndImport.DoExport(filtredPosts, fileLabel.Text.ToString());
+                MessageBox.Query("Exported", $"Data exported. File path:'{fileLabel.Text.ToString()}'", "OK");
             }
             catch (System.Exception ex)
             {
