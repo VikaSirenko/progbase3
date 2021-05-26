@@ -37,14 +37,17 @@ public static class Authentication
 
     public static void DoAuthorization(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
     {
-        Application.Init();
 
-        Toplevel top = Application.Top;
-        AuthenticationWindow window = new AuthenticationWindow();
-        window.SetRepository(userRepository, postRepository, commentRepository);
-        top.Add(window);
+        while (true)
+        {
+            Application.Init();
+            Toplevel top = Application.Top;
+            AuthenticationWindow window = new AuthenticationWindow();
+            window.SetRepository(userRepository, postRepository, commentRepository);
+            top.Add(window);
 
-        Application.Run();
+            Application.Run();
+        }
 
     }
 

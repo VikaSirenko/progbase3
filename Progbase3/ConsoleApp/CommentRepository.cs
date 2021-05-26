@@ -17,14 +17,15 @@ public class CommentRepository
         SqliteCommand command = connection.CreateCommand();
         command.CommandText =
         @"
-        INSERT INTO comments (commentText, commentedAt, userId, postId)
-        VALUES ($commentText, $commentedAt, $userId, $postId);
+        INSERT INTO comments (commentText, commentedAt, userId, postId, imported)
+        VALUES ($commentText, $commentedAt, $userId, $postId, $imported);
         SELECT last_insert_rowid();
         ";
         command.Parameters.AddWithValue("$commentText", comment.commentText);
         command.Parameters.AddWithValue("$commentedAt", comment.commentedAt.ToString("o"));
         command.Parameters.AddWithValue("$userId", comment.userId);
         command.Parameters.AddWithValue("$postId", comment.postId);
+        command.Parameters.AddWithValue("$imported", comment.imported.ToString());
         long newId = (long)command.ExecuteScalar();
         connection.Close();
         return newId;
@@ -82,13 +83,15 @@ public class CommentRepository
         bool isCommentedAt = DateTime.TryParse(reader.GetString(2), out comment.commentedAt);
         bool isPostId = long.TryParse(reader.GetString(4), out comment.postId);
         bool isUserId = long.TryParse(reader.GetString(3), out comment.userId);
-        if (isId && isUserId && isCommentedAt && isPostId)
+        bool isImported = bool.TryParse(reader.GetString(5), out comment.imported);
+        if (isId && isUserId && isCommentedAt && isPostId && isImported)
         {
             comment.id = long.Parse(reader.GetString(0));
             comment.commentText = reader.GetString(1);
             comment.commentedAt = DateTime.Parse(reader.GetString(2));
             comment.userId = long.Parse(reader.GetString(3));
             comment.postId = long.Parse(reader.GetString(4));
+            comment.imported = bool.Parse(reader.GetString(5));
             return comment;
         }
         else
@@ -260,5 +263,46 @@ public class CommentRepository
         command.Parameters.AddWithValue("$postId", postId);
         connection.Close();
     }
+
+    public bool CommentExists(long id)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM comments WHERE id=$id";
+        command.Parameters.AddWithValue("$id", id);
+        SqliteDataReader reader = command.ExecuteReader();
+        bool result = reader.Read();
+        connection.Close();
+        return result;
+    }
+
+
+    public List<Comment> GetPageOfUserComments(long userId, int pageNumber, int pageLength)
+    {
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM comments WHERE  userId=$userId  LIMIT $pageLength OFFSET $pageLength *($pageNumber -1 )";
+        command.Parameters.AddWithValue("$userId", userId);
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        SqliteDataReader reader = command.ExecuteReader();
+
+        List<Comment> comments = new List<Comment>();
+        while (reader.Read())
+        {
+            Comment comment = new Comment();
+            comment = ParseCommentData(reader, comment);
+            comments.Add(comment);
+        }
+
+        reader.Close();
+        connection.Close();
+        return comments;
+    }
+
 
 }

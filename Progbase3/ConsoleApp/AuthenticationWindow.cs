@@ -64,13 +64,20 @@ public class AuthenticationWindow : Window
 
             else
             {
-                long id = userRepository.Insert(user);
-                user.id = id;
-                Toplevel top = Application.Top;
-                MainWindow window = new MainWindow(user);
-                window.SetData(userRepository, postRepository, commentRepository);
-                top.Add(window);
-                Application.Run();
+                if (!userRepository.UserExists(user.userName, user.passwordHash))
+                {
+                    long id = userRepository.Insert(user);
+                    user.id = id;
+                    Toplevel top = Application.Top;
+                    MainWindow window = new MainWindow(user);
+                    window.SetData(userRepository, postRepository, commentRepository);
+                    top.Add(window);
+                    Application.Run();
+                }
+                else
+                {
+                    MessageBox.ErrorQuery("ERROR", "User already exists", "OK");
+                }
             }
         }
     }

@@ -9,7 +9,7 @@ public class User
     public string passwordHash;
     public string fullname;
     public bool isModerator;
-
+    
     public List<Post> posts;
     public List<Comment> comments;
 

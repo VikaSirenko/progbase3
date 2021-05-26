@@ -1,9 +1,8 @@
 using Terminal.Gui;
 using System.Collections.Generic;
-
-public class ShowMyPostsDialog : Dialog
+public class ShowUserCommentsDialog : Dialog
 {
-    private ListView allPostsListView;
+    private ListView allCommentsListView;
     private User currentUser;
     private int pageLength = 10;
     private int currentPage = 1;
@@ -11,13 +10,12 @@ public class ShowMyPostsDialog : Dialog
     private Label allPagesLbl;
     private Button prevPageButton;
     private Button nextPageButton;
-    private PostRepository postRepository;
     private CommentRepository commentRepository;
     private Label isEmptyListLbl;
-    public ShowMyPostsDialog()
+    public ShowUserCommentsDialog()
     {
-        this.Title = "Show my posts";
-        allPostsListView = new ListView(new List<Post>())
+        this.Title = "Show my comments";
+        allCommentsListView = new ListView(new List<Post>())
         {
             Width = Dim.Fill(),
             Height = Dim.Fill(),
@@ -27,11 +25,8 @@ public class ShowMyPostsDialog : Dialog
         backBtn.Clicked += OnShowDialogBack;
         this.Add(backBtn);
 
-        Button createPostBtn = new Button(4, 18, "Create post");
-        createPostBtn.Clicked += OnCreatePostClicked;
-        this.Add(createPostBtn);
 
-        allPostsListView.OpenSelectedItem += OnOpenPost;
+        allCommentsListView.OpenSelectedItem += OnOpenComment;
         prevPageButton = new Button(22, 14, "<");
         nextPageButton = new Button(38, 14, ">");
         this.currentPageLbl = new Label(30, 14, "?");
@@ -44,7 +39,7 @@ public class ShowMyPostsDialog : Dialog
         this.Add(prevPageButton, nextPageButton, currentPageLbl, allPagesLbl, slash);
 
 
-        FrameView frameView = new FrameView("Posts")
+        FrameView frameView = new FrameView("Comments")
         {
             X = 4,
             Y = 2,
@@ -52,78 +47,53 @@ public class ShowMyPostsDialog : Dialog
             Height = pageLength + 2,
         };
 
-        frameView.Add(allPostsListView);
+        frameView.Add(allCommentsListView);
         this.Add(frameView);
 
-        isEmptyListLbl = new Label("There is no posts.");
+        isEmptyListLbl = new Label("There is no comments.");
         frameView.Add(isEmptyListLbl);
         isEmptyListLbl.Visible = false;
 
 
     }
 
-    private void OnCreatePostClicked()
-    {
-
-        CreatePostDialog dialog = new CreatePostDialog();
-        Application.Run(dialog);
-
-        if (dialog.canceled == false)
-        {
-            Post post = dialog.GetPostFromFields();
-            if (post == null)
-            {
-                MessageBox.ErrorQuery("Create post", "Can not create post.\nAll fields must be filled in the correct format", "OK");
-            }
-
-            else
-            {
-                post.pinCommentId = default;
-                post.userId = currentUser.id;
-
-                long id = postRepository.Insert(post);
-                post.id = id;
-            }
-        }
-
-    }
     private void OnShowDialogBack()
     {
         Application.RequestStop();
     }
 
-    public void SetData(PostRepository postRepository, CommentRepository commentRepository, User currentUser)
+    public void SetData(CommentRepository commentRepository, User currentUser)
     {
         this.currentUser = currentUser;
-        this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         ShowCurrentPage();
     }
 
-    private void OnOpenPost(ListViewItemEventArgs args)
+    private void OnOpenComment(ListViewItemEventArgs args)
     {
-        Post post = (Post)args.Value;
-        OpenPostDialog dialog = new OpenPostDialog(currentUser, post);
-        dialog.SetData(post, commentRepository);
+        Comment comment = (Comment)args.Value;
+        OpenCommentDialog dialog = new OpenCommentDialog(currentUser, comment);
+        dialog.SetData(comment);
 
         Application.Run(dialog);
 
         if (dialog.deleted == true)
         {
-            ProcessDeletePost(post);
+            ProcessDeleteComment(comment);
 
         }
 
         else if (dialog.updated == true)
         {
-            ProcessEditPost(dialog, post);
+            ProcessEditComment(dialog, comment);
         }
+
 
     }
 
     private void OnNextButtonClicked()
     {
-        int totalPages = postRepository.GetTotalPages(pageLength);
+        int totalPages = commentRepository.GetTotalPages(pageLength);
         if (currentPage >= totalPages)
         {
             return;
@@ -137,7 +107,7 @@ public class ShowMyPostsDialog : Dialog
     private void OnPrevButtonClicked()
     {
 
-        int totalPages = postRepository.GetTotalPages(pageLength);
+        int totalPages = commentRepository.GetTotalPages(pageLength);
         if (currentPage <= 1)
         {
             return;
@@ -150,7 +120,8 @@ public class ShowMyPostsDialog : Dialog
     private void ShowCurrentPage()
     {
         this.currentPageLbl.Text = currentPage.ToString();
-        int totalPages = postRepository.GetTotalPagesOfSelectedPosts (pageLength, currentUser.id);
+        currentUser.comments = commentRepository.GetAllByUserId(currentUser.id);
+        int totalPages = (int)System.Math.Ceiling(currentUser.comments.Count / (double)pageLength);
 
         if (totalPages == 0)
         {
@@ -159,12 +130,12 @@ public class ShowMyPostsDialog : Dialog
 
         this.allPagesLbl.Text = totalPages.ToString();
 
-        this.allPostsListView.SetSource(postRepository.GetPageOfUserPosts(currentUser.id, currentPage, pageLength));
+        this.allCommentsListView.SetSource(commentRepository.GetPageOfUserComments(currentUser.id, currentPage, pageLength));
 
         prevPageButton.Visible = (currentPage != 1);
         nextPageButton.Visible = (currentPage != int.Parse(this.allPagesLbl.Text.ToString()));
 
-        if (postRepository.GetPageOfUserPosts(currentUser.id, currentPage, pageLength).Count == 0)
+        if (commentRepository.GetPageOfUserComments(currentUser.id, currentPage, pageLength).Count == 0)
         {
             isEmptyListLbl.Visible = true;
         }
@@ -176,13 +147,12 @@ public class ShowMyPostsDialog : Dialog
 
     }
 
-    private void ProcessDeletePost(Post post)
+    private void ProcessDeleteComment(Comment comment)
     {
-        bool isDeleted = postRepository.Delete(post.id);
+        bool isDeleted = commentRepository.Delete(comment.id);
         if (isDeleted)
         {
-            commentRepository.DeleteAllByPostId(post.id);
-            int countOfPages = postRepository.GetTotalPages(pageLength);
+            int countOfPages = commentRepository.GetTotalPages(pageLength);
             if (currentPage > countOfPages && currentPage > 1)
             {
                 currentPage--;
@@ -192,26 +162,25 @@ public class ShowMyPostsDialog : Dialog
 
         else
         {
-            MessageBox.ErrorQuery("Delete post", "Can not delete post.", "OK");
+            MessageBox.ErrorQuery("Delete comment", "Can not delete comment.", "OK");
         }
 
     }
 
-    private void ProcessEditPost(OpenPostDialog dialog, Post post)
+    private void ProcessEditComment(OpenCommentDialog dialog, Comment comment)
     {
-        Post updatedPost = dialog.GetPost();
-        if (postRepository.Update(updatedPost, post.id))
+        Comment updatedComment = dialog.GetComment();
+        if (commentRepository.Update(updatedComment, comment.id))
         {
             ShowCurrentPage();
         }
 
         else
         {
-            MessageBox.ErrorQuery("Edit post", "Can not edit post.", "OK");
+            MessageBox.ErrorQuery("Edit comment", "Can not edit comment.", "OK");
         }
 
     }
-
 
 
 }

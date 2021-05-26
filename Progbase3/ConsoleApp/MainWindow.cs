@@ -26,14 +26,6 @@ public class MainWindow : Window
             showPostsBtn.Clicked += OnShowPostsClicked;
             this.Add(showPostsBtn);
 
-            Button showCommentsBtn = new Button(2, 12, "Show comments");
-            showCommentsBtn.Clicked += OnShowCommentsClicked;
-            this.Add(showCommentsBtn);
-
-            Button showMyPostsBtn = new Button(2, 14, "Show my posts");
-            showMyPostsBtn.Clicked += OnShowMyPostsClicked;
-            this.Add(showMyPostsBtn);
-
         }
         else
         {
@@ -46,11 +38,12 @@ public class MainWindow : Window
             showPostsBtn.Clicked += OnShowPostsClicked;
             this.Add(showPostsBtn);
 
-            Button showMyPostsBtn = new Button(2, 12, "Show my posts");
-            showMyPostsBtn.Clicked += OnShowMyPostsClicked;
-            this.Add(showMyPostsBtn);
 
         }
+
+        Button showInformationBtn = new Button(2, 12, "Show my information");
+        showInformationBtn.Clicked += OnShowInformationClicked;
+        this.Add(showInformationBtn);
 
         MenuBar menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("File", new MenuItem [] {
@@ -86,14 +79,13 @@ public class MainWindow : Window
     {
         Application.RequestStop();
     }
-
-    public void OnShowMyPostsClicked()
+    private void OnShowInformationClicked()
     {
-        ShowMyPostsDialog dialog = new ShowMyPostsDialog();
-        dialog.SetData(postRepository, commentRepository, currentUser);
+        UserDataDialog dialog = new UserDataDialog();
+        dialog.SetData(userRepository, postRepository, commentRepository, currentUser);
         Application.Run(dialog);
-
     }
+
 
     public void SetData(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
     {

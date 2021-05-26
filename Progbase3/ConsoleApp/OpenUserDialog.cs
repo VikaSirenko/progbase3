@@ -91,9 +91,11 @@ public class OpenUserDialog : Dialog
             if (updatedUser == null)
             {
                 this.updated = false;
+                MessageBox.ErrorQuery("Edit user", "Can not edit user. Fields are filled incorrectly.", "OK");
             }
             else
             {
+
                 this.SetData(updatedUser);
                 this.updated = true;
             }

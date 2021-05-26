@@ -6,7 +6,7 @@ using System.Xml;
 
 public static class ExportAndImport
 {
-    public static void DoExport(List<Post> posts, string outputFile)
+    public static void DoExportOfPosts(List<Post> posts, string outputFile)
     {
         XmlSerializer serializer = new XmlSerializer(typeof(List<Post>));
         StreamWriter output = new StreamWriter(outputFile);
@@ -15,6 +15,17 @@ public static class ExportAndImport
         settings.NewLineHandling = NewLineHandling.Entitize;
         XmlWriter writer = XmlWriter.Create(output, settings);
         serializer.Serialize(output, posts);
+        output.Close();
+    }
+    public static void DoExportOfComments(List<Comment> comments, string outputFile)
+    {
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Comment>));
+        StreamWriter output = new StreamWriter(outputFile);
+        XmlWriterSettings settings = new XmlWriterSettings();
+        settings.Indent = true;
+        settings.NewLineHandling = NewLineHandling.Entitize;
+        XmlWriter writer = XmlWriter.Create(output, settings);
+        serializer.Serialize(output, comments);
         output.Close();
     }
 
@@ -33,11 +44,18 @@ public static class ExportAndImport
     {
         for (int i = 0; i < posts.Count; i++)
         {
-
-            postRepository.Insert(posts[i]);
-            for (int j = 0; j < posts[i].comments.Count; j++)
+            if (!postRepository.PostExists(posts[i].id))
             {
-                commentRepository.Insert(posts[i].comments[j]);
+                posts[i].imported = true;
+                postRepository.Insert(posts[i]);
+                for (int j = 0; j < posts[i].comments.Count; j++)
+                {
+                    if (!commentRepository.CommentExists(posts[i].comments[j].id))
+                    {
+                        posts[i].comments[j].imported = true;
+                        commentRepository.Insert(posts[i].comments[j]);
+                    }
+                }
             }
 
         }

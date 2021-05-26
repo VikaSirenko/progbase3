@@ -88,8 +88,16 @@ public class ShowUsersDialog : Dialog
 
             else
             {
-                long id = userRepository.Insert(user);
-                user.id = id;
+                if (!userRepository.UserExists(user.userName, user.passwordHash))
+                {
+                    long id = userRepository.Insert(user);
+                    user.id = id;
+                }
+                else
+                {
+                    MessageBox.ErrorQuery("ERROR", "User already exists", "OK");
+                }
+
                 ShowCurrentPage();
             }
         }

@@ -11,8 +11,10 @@ public class Post
     public long userId;
     public long pinCommentId;
 
-    [XmlElement("comment")]
+    //[NonSerialized]
     public List<Comment> comments;
+
+    public bool imported;
 
     public Post()
     {
@@ -21,6 +23,7 @@ public class Post
         this.publishedAt = default;
         this.userId = default;
         this.pinCommentId = default;
+        this.imported = false;
     }
 
     public override string ToString()

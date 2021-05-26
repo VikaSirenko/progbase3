@@ -8,6 +8,8 @@ public class Comment
     public long userId;
     public long postId;
 
+    public bool imported;
+
     public Comment()
     {
         this.id = default;
@@ -15,6 +17,8 @@ public class Comment
         this.commentedAt = default;
         this.userId = default;
         this.postId = default;
+        this.imported = false;
+
     }
 
     public override string ToString()

@@ -1,10 +1,14 @@
 using Terminal.Gui;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
 public class ExportPostDialog : Dialog
 {
     private TextField coincidenceInput;
     private PostRepository postRepository;
-    private Label fileLabel;
+    private Label pathToFolder;
+    private TextField nameOfZip;
+
 
     public ExportPostDialog()
     {
@@ -16,17 +20,29 @@ public class ExportPostDialog : Dialog
         this.AddButton(cancelBtn);
         this.AddButton(okBtn);
 
-        Button selectedBtn = new Button(4, 8, "Open file");
-        selectedBtn.Clicked += SelectFile;
+        Button selectedFolderBtn = new Button(4, 12, "Select a folder");
+        selectedFolderBtn.Clicked += SelectFolder;
 
-        fileLabel = new Label("")
+        pathToFolder = new Label("")
         {
-            X = Pos.Right(selectedBtn) + 2,
-            Y = Pos.Top(selectedBtn),
+            X = Pos.Right(selectedFolderBtn) + 2,
+            Y = Pos.Top(selectedFolderBtn),
             Width = Dim.Fill(),
         };
 
-        this.Add(selectedBtn, fileLabel);
+        Label nameOfZipLbl = new Label(4, 8, "Archive name");
+        nameOfZip = new TextField()
+        {
+            X = 25,
+            Y = Pos.Top(nameOfZipLbl),
+            Width = 40,
+            Height = 8,
+
+        };
+        this.Add(nameOfZipLbl, nameOfZip);
+
+
+        this.Add(selectedFolderBtn, pathToFolder);
 
         Label coincidenceLbl = new Label(4, 4, "Enter text to filter:");
         coincidenceInput = new TextField()
@@ -40,24 +56,22 @@ public class ExportPostDialog : Dialog
 
     }
 
-    private void SelectFile()
+    private void SelectFolder()
     {
-        OpenDialog dialog = new OpenDialog("Open XML file", "Open?");
+        OpenDialog dialog = new OpenDialog("Open folder", "Open?");
         dialog.DirectoryPath = "/home/vika/projects/progbase3/data/importAndExportFiles";
         Application.Run(dialog);
 
         if (!dialog.Canceled)
         {
             NStack.ustring filePath = dialog.FilePath;
-            fileLabel.Text = filePath;
+            pathToFolder.Text = filePath;
         }
         else
         {
-            fileLabel.Text = "";
+            pathToFolder.Text = "";
         }
-
     }
-
 
     public void SetData(PostRepository postRepository)
     {
@@ -71,19 +85,22 @@ public class ExportPostDialog : Dialog
 
     private void OnOkClicked()
     {
-        this.DoExportPost();
+        this.DoExport();
         Application.RequestStop();
     }
 
-    private void DoExportPost()
+    private void DoExport()
     {
-        if (!coincidenceInput.Text.IsEmpty && !fileLabel.Text.IsEmpty)
+        if (!coincidenceInput.Text.IsEmpty && !pathToFolder.Text.IsEmpty && !nameOfZip.Text.IsEmpty)
         {
             List<Post> filtredPosts = postRepository.FilterByPostText(coincidenceInput.Text.ToString());
             try
             {
-                ExportAndImport.DoExport(filtredPosts, fileLabel.Text.ToString());
-                MessageBox.Query("Exported", $"Data exported. File path:'{fileLabel.Text.ToString()}'", "OK");
+                ExportAndImport.DoExportOfPosts(filtredPosts, pathToFolder.Text.ToString() + "/posts.xml");
+                List<Comment> filtredComments = FilterComments(filtredPosts);
+                ExportAndImport.DoExportOfComments(filtredComments, pathToFolder.Text.ToString() + "/comments.xml");
+                this.PerformArchiving();
+
             }
             catch (System.Exception ex)
             {
@@ -97,5 +114,36 @@ public class ExportPostDialog : Dialog
         }
 
     }
+
+    private List<Comment> FilterComments(List<Post> filtredPosts)
+    {
+        List<Comment> filtredComments = new List<Comment>();
+        for (int i = 0; i < filtredPosts.Count; i++)
+        {
+            for (int j = 0; j < filtredPosts[i].comments.Count; j++)
+            {
+                filtredComments.Add(filtredPosts[i].comments[j]);
+            }
+        }
+        return filtredComments;
+    }
+
+    private void PerformArchiving()
+    {
+        string startPath = pathToFolder.Text.ToString();
+        string resultPath = "/home/vika/projects/progbase3/data/importAndExportFiles/" + nameOfZip.Text.ToString() + ".zip";
+        if (!File.Exists(resultPath))
+        {
+            ZipFile.CreateFromDirectory(startPath, resultPath);
+            MessageBox.Query("Exported", $"Data exported. File path:'{resultPath}'", "OK");
+        }
+        else
+        {
+            MessageBox.ErrorQuery("ERROR", "File already exists. Rename the file", "OK");
+        }
+    }
+
+
+
 
 }

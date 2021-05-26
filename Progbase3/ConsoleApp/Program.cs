@@ -6,7 +6,6 @@ class Program
 {
     static void Main(string[] args)
     {
-
         string databaseFileName = "/home/vika/projects/progbase3/data/database";
         SqliteConnection connection = new SqliteConnection($"Data Source={databaseFileName}");
         UserRepository userRepository = new UserRepository(connection);
@@ -16,7 +15,7 @@ class Program
         Authentication.DoAuthorization(userRepository, postRepository, commentRepository);
 
 
-        //ConsoleApp.Generator.GenerateEntities();
+        //Generator.GenerateEntities();
 
     }
 

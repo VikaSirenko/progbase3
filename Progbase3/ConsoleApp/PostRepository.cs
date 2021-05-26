@@ -38,14 +38,15 @@ public class PostRepository
         SqliteCommand command = connection.CreateCommand();
         command.CommandText =
         @"
-        INSERT INTO posts (publicationText, publishedAt, userId, pinCommentId )
-        VALUES ($publicationText, $publishedAt, $userId, $pinCommentId);
+        INSERT INTO posts (publicationText, publishedAt, userId, pinCommentId , imported)
+        VALUES ($publicationText, $publishedAt, $userId, $pinCommentId, $imported);
         SELECT last_insert_rowid();
         ";
         command.Parameters.AddWithValue("$publicationText", post.publicationText);
         command.Parameters.AddWithValue("$publishedAt", post.publishedAt.ToString("o"));
         command.Parameters.AddWithValue("$userId", post.userId);
         command.Parameters.AddWithValue("$pinCommentId", post.pinCommentId);
+        command.Parameters.AddWithValue("$imported", post.imported.ToString());
         long newId = (long)command.ExecuteScalar();
         connection.Close();
         return newId;
@@ -105,13 +106,15 @@ public class PostRepository
         bool isPublishedAt = DateTime.TryParse(reader.GetString(2), out post.publishedAt);
         bool isPinnedCommentId = long.TryParse(reader.GetString(4), out post.pinCommentId);
         bool isUserId = long.TryParse(reader.GetString(3), out post.userId);
-        if (isId && isUserId && isPublishedAt && isPinnedCommentId)
+        bool isImported = bool.TryParse(reader.GetString(5), out post.imported);
+        if (isId && isUserId && isPublishedAt && isPinnedCommentId && isImported)
         {
             post.id = long.Parse(reader.GetString(0));
             post.publicationText = reader.GetString(1);
             post.publishedAt = DateTime.Parse(reader.GetString(2));
             post.userId = long.Parse(reader.GetString(3));
             post.pinCommentId = long.Parse(reader.GetString(4));
+            post.imported = bool.Parse(reader.GetString(5));
             return post;
         }
         else
@@ -214,7 +217,6 @@ public class PostRepository
     }
 
 
-
     public List<Post> FilterByPostText(string value)
     {
         connection.Open();
@@ -226,14 +228,18 @@ public class PostRepository
 
         List<Post> posts = new List<Post>();
         Post post = new Post();
+        //post.comments = new List<Comment>();
         while (reader.Read())
         {
             post = ParsePostData(reader, post);
-            if (!posts.Contains(post))                  //fix
+
+            if (!IsPostExist(post, posts))
             {
                 posts.Add(post);
                 post.comments = new List<Comment>();
+                break;
             }
+
             Comment comment = new Comment();
             comment = ParseCommentData(reader, comment);
             post.comments.Add(comment);
@@ -242,6 +248,19 @@ public class PostRepository
         reader.Close();
         connection.Close();
         return posts;
+    }
+
+    private bool IsPostExist(Post post, List<Post> posts)
+    {
+        for (int i = 0; i < posts.Count; i++)
+        {
+            if (post.id == posts[i].id)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public List<Post> GetPageOfUserPosts(long userId, int pageNumber, int pageLength)
@@ -274,17 +293,19 @@ public class PostRepository
 
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {
-        bool isId = long.TryParse(reader.GetString(5), out comment.id);
-        bool isCommentedAt = DateTime.TryParse(reader.GetString(7), out comment.commentedAt);
-        bool isUserId = long.TryParse(reader.GetString(8), out comment.userId);
-        bool isPostId = long.TryParse(reader.GetString(9), out comment.postId);
-        if (isId && isUserId && isCommentedAt && isPostId)
+        bool isId = long.TryParse(reader.GetString(6), out comment.id);
+        bool isCommentedAt = DateTime.TryParse(reader.GetString(8), out comment.commentedAt);
+        bool isUserId = long.TryParse(reader.GetString(9), out comment.userId);
+        bool isPostId = long.TryParse(reader.GetString(10), out comment.postId);
+        bool isImported = bool.TryParse(reader.GetString(11), out comment.imported);
+        if (isId && isUserId && isCommentedAt && isPostId && isImported)
         {
-            comment.id = long.Parse(reader.GetString(5));
-            comment.commentText = reader.GetString(6);
-            comment.commentedAt = DateTime.Parse(reader.GetString(7));
-            comment.userId = long.Parse(reader.GetString(8));
-            comment.postId = long.Parse(reader.GetString(9));
+            comment.id = long.Parse(reader.GetString(6));
+            comment.commentText = reader.GetString(7);
+            comment.commentedAt = DateTime.Parse(reader.GetString(8));
+            comment.userId = long.Parse(reader.GetString(9));
+            comment.postId = long.Parse(reader.GetString(10));
+            comment.imported = bool.Parse(reader.GetString(11));
             return comment;
         }
         else
@@ -292,21 +313,6 @@ public class PostRepository
             throw new FormatException("Values cannot be parsed");
 
         }
-    }
-
-    public long GetCountOfSelectedPosts(long userId)
-    {
-        connection.Open();
-        SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"SELECT COUNT(*) FROM posts WHERE userId=$userId";
-        command.Parameters.AddWithValue("$userId", userId);
-        long count = (long)command.ExecuteScalar();
-        connection.Close();
-        return count;
-    }
-    public int GetTotalPagesOfSelectedPosts(int pageLength, long userId)
-    {
-        return (int)Math.Ceiling(this.GetCountOfSelectedPosts(userId) / (double)pageLength);
     }
 
 }
