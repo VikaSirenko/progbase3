@@ -6,6 +6,8 @@ public class UserDataDialog : Dialog
     private CommentRepository commentRepository;
     private User currentUser;
 
+    public bool isUserRemoved;
+
     public UserDataDialog()
     {
         this.Title = "My information";
@@ -40,9 +42,60 @@ public class UserDataDialog : Dialog
     private void OnAccountManagement()
     {
         OpenUserDialog dialog = new OpenUserDialog(currentUser, currentUser);
-        dialog.SetData(currentUser);
+        dialog.SetData(currentUser, postRepository, commentRepository);
+
         Application.Run(dialog);
+
+        if (dialog.deleted == true)
+        {
+            ProcessDeleteUser(currentUser);
+
+        }
+
+        else if (dialog.updated == true)
+        {
+            ProcessEditUser(dialog, currentUser);
+        }
+
     }
+
+    private void ProcessDeleteUser(User user)
+    {
+        bool isDeleted = userRepository.Delete(user.id);
+        if (isDeleted)
+        {
+            postRepository.DeleteAllByUserId(user.id);
+            commentRepository.DeleteAllByUserId(user.id);
+            isUserRemoved=true;
+            Application.RequestStop();
+        }
+
+        else
+        {
+            MessageBox.ErrorQuery("Delete user", "Can not delete user.", "OK");
+        }
+
+    }
+
+    private void ProcessEditUser(OpenUserDialog dialog, User user)
+    {
+
+        User updatedUser = dialog.GetUser();
+        if (userRepository.Update(updatedUser, user.id))
+        {
+            if (user.passwordHash == Authentication.ConvertToHash(""))
+            {
+                updatedUser.passwordHash = user.passwordHash;
+            }
+        }
+
+        else
+        {
+            MessageBox.ErrorQuery("Edit user", "Can not edit user.", "OK");
+        }
+
+    }
+
 
     public void SetData(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, User currentUser)
     {

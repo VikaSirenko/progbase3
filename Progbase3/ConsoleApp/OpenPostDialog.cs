@@ -28,7 +28,7 @@ public class OpenPostDialog : Dialog
         Button backBtn = new Button("Back");
         backBtn.Clicked += OnOpenDialogBack;
 
-        if ((currentUser.userName == "ADMIN" && currentUser.passwordHash == "b756562aeca5d42be0705b993c861a473b1c2dbcb782fa730b89d38fd94572ac") || currentUser.id == post.userId)
+        if ((currentUser.userName == "ADMIN" && currentUser.passwordHash == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824") || currentUser.id == post.userId)
         {
             Button editBtn = new Button("Edit");
             Button deleteBtn = new Button("Delete");

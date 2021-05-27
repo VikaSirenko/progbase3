@@ -10,6 +10,8 @@ public class OpenUserDialog : Dialog
     private Label fullNameOutput;
     private Label isModeratorOutput;
     private User currentUser;
+    private PostRepository postRepository;
+    private CommentRepository commentRepository;
 
 
     public User GetUser()
@@ -27,7 +29,7 @@ public class OpenUserDialog : Dialog
         Button backBtn = new Button("Back");
         backBtn.Clicked += OnOpenDialogBack;
 
-        if ((currentUser.userName == "ADMIN" && currentUser.passwordHash == "b756562aeca5d42be0705b993c861a473b1c2dbcb782fa730b89d38fd94572ac") || currentUser.id == user.id)
+        if ((currentUser.userName == "ADMIN" && currentUser.passwordHash == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824") || currentUser.id == user.id)
         {
             Button editBtn = new Button("Edit");
             Button deleteBtn = new Button("Delete");
@@ -37,6 +39,10 @@ public class OpenUserDialog : Dialog
             this.AddButton(editBtn);
             this.AddButton(deleteBtn);
         }
+
+        Button showUserPosts = new Button(coordinateX, 10, "View user posts");
+        showUserPosts.Clicked += OnShowUserPosts;
+        this.Add(showUserPosts);
 
         this.AddButton(backBtn);
 
@@ -67,12 +73,21 @@ public class OpenUserDialog : Dialog
 
     }
 
-    public void SetData(User user)
+    private void OnShowUserPosts()
+    {
+        ShowUserPostsDialog dialog = new ShowUserPostsDialog();
+        dialog.SetData(postRepository, commentRepository, user);
+        Application.Run(dialog);
+    }
+
+    public void SetData(User user, PostRepository postRepository, CommentRepository commentRepository)
     {
         this.user = user;
         this.userNameOutput.Text = user.userName;
         this.fullNameOutput.Text = user.fullname;
         this.isModeratorOutput.Text = user.isModerator.ToString();
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     private void OnOpenDialogBack()
@@ -96,7 +111,7 @@ public class OpenUserDialog : Dialog
             else
             {
 
-                this.SetData(updatedUser);
+                this.SetData(updatedUser, postRepository, commentRepository);
                 this.updated = true;
             }
         }

@@ -93,7 +93,7 @@ public class AuthenticationWindow : Window
     {
         if (userNameInput.Text != "" && passwordInput.Text != "")
         {
-            string passwordHash = Authentication.ConvertToHash(passwordInput.ToString());
+            string passwordHash = Authentication.ConvertToHash(passwordInput.Text.ToString());
             if (userRepository.UserExists(userNameInput.Text.ToString(), passwordHash))
             {
                 Application.Init();

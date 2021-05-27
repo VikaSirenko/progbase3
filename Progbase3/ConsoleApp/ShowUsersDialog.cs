@@ -121,7 +121,7 @@ public class ShowUsersDialog : Dialog
     {
         User user = (User)args.Value;
         OpenUserDialog dialog = new OpenUserDialog(currentUser, user);
-        dialog.SetData(user);
+        dialog.SetData(user, postRepository, commentRepository);
 
         Application.Run(dialog);
 

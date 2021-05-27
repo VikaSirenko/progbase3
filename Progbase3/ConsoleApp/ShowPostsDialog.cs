@@ -186,6 +186,7 @@ public class ShowPostsDialog : Dialog
             int countOfPages = postRepository.GetTotalPages(pageLength);
             if (currentPage > countOfPages && currentPage > 1)
             {
+                commentRepository.DeleteAllByPostId(post.id);
                 currentPage--;
             }
             ShowCurrentPage();

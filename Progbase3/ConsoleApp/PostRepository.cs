@@ -178,6 +178,7 @@ public class PostRepository
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"DELETE FROM posts WHERE userId=$userId";
         command.Parameters.AddWithValue("$userId", userId);
+        int nChanges = command.ExecuteNonQuery();
         connection.Close();
 
     }
@@ -290,7 +291,33 @@ public class PostRepository
         return posts;
     }
 
+    public List<Post> GetPageOfFilteredPosts(string value, int pageNumber, int pageLength)
+    {
+        if (pageNumber < 1)
+        {
+            throw new ArgumentException(nameof(pageNumber));
+        }
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM posts WHERE  posts.publicationText LIKE '%' || $value || '%'  LIMIT $pageLength OFFSET $pageLength *($pageNumber -1 )";
+        command.Parameters.AddWithValue("$value", value);
+        command.Parameters.AddWithValue("$pageLength", pageLength);
+        command.Parameters.AddWithValue("$pageNumber", pageNumber);
+        SqliteDataReader reader = command.ExecuteReader();
 
+        List<Post> posts = new List<Post>();
+        while (reader.Read())
+        {
+            Post post = new Post();
+            post = ParsePostData(reader, post);
+            posts.Add(post);
+        }
+
+        reader.Close();
+        connection.Close();
+        return posts;
+
+    }
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {
         bool isId = long.TryParse(reader.GetString(6), out comment.id);

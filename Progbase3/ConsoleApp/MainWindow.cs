@@ -8,6 +8,7 @@ public class MainWindow : Window
     private CommentRepository commentRepository;
     private User currentUser;
 
+
     public MainWindow(User currentUser)
     {
         this.currentUser = currentUser;
@@ -16,7 +17,7 @@ public class MainWindow : Window
         Label greetingLbl = new Label(2, 4, $"Hi, {currentUser.fullname}");
         this.Add(greetingLbl);
 
-        if (currentUser.userName == "ADMIN" && currentUser.passwordHash == "b756562aeca5d42be0705b993c861a473b1c2dbcb782fa730b89d38fd94572ac")
+        if (currentUser.userName == "ADMIN" && currentUser.passwordHash == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
         {
             Button showUsersBtn = new Button(2, 8, "Show users");
             showUsersBtn.Clicked += OnShowUsersClicked;
@@ -71,7 +72,7 @@ public class MainWindow : Window
     private void OnExport()
     {
         ExportPostDialog dialog = new ExportPostDialog();
-        dialog.SetData(postRepository);
+        dialog.SetData(postRepository, commentRepository, currentUser);
         Application.Run(dialog);
     }
 
@@ -84,6 +85,10 @@ public class MainWindow : Window
         UserDataDialog dialog = new UserDataDialog();
         dialog.SetData(userRepository, postRepository, commentRepository, currentUser);
         Application.Run(dialog);
+        if (dialog.isUserRemoved == true)
+        {
+            Application.RequestStop();
+        }
     }
 
 

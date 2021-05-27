@@ -252,6 +252,7 @@ public class CommentRepository
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"DELETE FROM comments WHERE userId=$userId";
         command.Parameters.AddWithValue("$userId", userId);
+        int nChanges = command.ExecuteNonQuery();
         connection.Close();
     }
 
