@@ -19,7 +19,7 @@ public class ExportPostDialog : Dialog
     private Label isEmptyListLbl;
     private User currentUser;
     private bool isEnterPressed;
-  
+
 
 
     public ExportPostDialog()
@@ -175,11 +175,15 @@ public class ExportPostDialog : Dialog
     {
         if (!coincidenceInput.Text.IsEmpty && !pathToFolder.Text.IsEmpty && !nameOfZip.Text.IsEmpty)
         {
-            List<Post> filtredPosts = postRepository.FilterByPostText(coincidenceInput.Text.ToString());
+            List<Post> filtredPosts = postRepository.GetListOfFilteredPosts(coincidenceInput.Text.ToString());
             try
             {
                 ExportAndImport.DoExportOfPosts(filtredPosts, pathToFolder.Text.ToString() + "/posts.xml");
-                List<Comment> filtredComments = FilterComments(filtredPosts);
+                List<Comment> filtredComments = new List<Comment>();
+                for (int i = 0; i < filtredPosts.Count; i++)
+                {
+                    filtredComments = commentRepository.GetAllFiltredComments(filtredPosts[i].id, filtredComments);
+                }
                 ExportAndImport.DoExportOfComments(filtredComments, pathToFolder.Text.ToString() + "/comments.xml");
                 this.PerformArchiving();
 
@@ -195,19 +199,6 @@ public class ExportPostDialog : Dialog
             MessageBox.ErrorQuery("ERROR", "Fields are not filled", "OK");
         }
 
-    }
-
-    private List<Comment> FilterComments(List<Post> filtredPosts)
-    {
-        List<Comment> filtredComments = new List<Comment>();
-        for (int i = 0; i < filtredPosts.Count; i++)
-        {
-            for (int j = 0; j < filtredPosts[i].comments.Count; j++)
-            {
-                filtredComments.Add(filtredPosts[i].comments[j]);
-            }
-        }
-        return filtredComments;
     }
 
     private void PerformArchiving()
@@ -281,7 +272,7 @@ public class ExportPostDialog : Dialog
         }
         else
         {
-            List<Post> filtredPosts = postRepository.FilterByPostText(coincidenceInput.Text.ToString());
+            List<Post> filtredPosts = postRepository.GetListOfFilteredPosts(coincidenceInput.Text.ToString());
             int totalPages = (int)System.Math.Ceiling(filtredPosts.Count / (double)pageLength);
 
             if (totalPages == 0)

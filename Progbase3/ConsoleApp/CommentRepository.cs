@@ -53,29 +53,27 @@ public class CommentRepository
 
     }
 
-    /*
-        public List<Comment> GetAllByPostId(long postId)
+    public List<Comment> GetAllFiltredComments(long postId, List<Comment> comments)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM comments WHERE postId = $postId";
+        command.Parameters.AddWithValue("$postId", postId);
+        SqliteDataReader reader = command.ExecuteReader();
+
+        while (reader.Read())
         {
-            connection.Open();
-            SqliteCommand command = connection.CreateCommand();
-            command.CommandText = @"SELECT * FROM comments WHERE postId = $postId";
-            command.Parameters.AddWithValue("$userId", postId);
-            SqliteDataReader reader = command.ExecuteReader();
-            List<Comment> comments = new List<Comment>();
-
-            while (reader.Read())
-            {
-                Comment comment = new Comment();
-                comment = ParseCommentData(reader, comment);
-                comments.Add(comment);
-            }
-
-            reader.Close();
-            connection.Close();
-            return comments;
-
+            Comment comment = new Comment();
+            comment = ParseCommentData(reader, comment);
+            comments.Add(comment);
         }
-        */
+
+        reader.Close();
+        connection.Close();
+        return comments;
+
+    }
+
 
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {

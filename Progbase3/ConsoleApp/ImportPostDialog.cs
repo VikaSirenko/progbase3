@@ -10,7 +10,7 @@ public class ImportPostDialog : Dialog
     public ImportPostDialog()
     {
         this.Title = "Import posts";
-        Button selectedBtn = new Button(4, 4, "Open file");
+        Button selectedBtn = new Button(4, 4, "Open folder");
         selectedBtn.Clicked += SelectFile;
 
         fileLabel = new Label("")
@@ -22,7 +22,7 @@ public class ImportPostDialog : Dialog
 
         this.Add(selectedBtn, fileLabel);
 
-        Button importButton = new Button(4, 6, "Import posts from file");
+        Button importButton = new Button(4, 6, "Do import from folder");
         importButton.Clicked += DoImportPosts;
         this.Add(importButton);
 
@@ -39,12 +39,13 @@ public class ImportPostDialog : Dialog
 
     private void DoImportPosts()
     {
-        if (File.Exists(fileLabel.Text.ToString()) && !fileLabel.Text.IsEmpty)
+        if (File.Exists(fileLabel.Text.ToString() + "/posts.xml") && File.Exists(fileLabel.Text.ToString() + "/comments.xml") && !fileLabel.Text.IsEmpty)
         {
             try
             {
-                ExportAndImport.DoImport(fileLabel.Text.ToString(), postRepository, commentRepository);
-                MessageBox.Query("Import posts", $"Posts imported", "OK");
+                ExportAndImport.DoImportOfPosts(fileLabel.Text.ToString() + "/posts.xml", postRepository);
+                ExportAndImport.DoImportOfComments(fileLabel.Text.ToString() + "/comments.xml", commentRepository);
+                MessageBox.Query("Import posts and comments", $"Posts and comments are imported", "OK");
                 Application.RequestStop();
             }
             catch (System.Exception ex)

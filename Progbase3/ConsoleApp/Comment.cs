@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Serialization;
 
 public class Comment
 {
@@ -8,6 +9,7 @@ public class Comment
     public long userId;
     public long postId;
 
+    [XmlIgnore]
     public bool imported;
 
     public Comment()

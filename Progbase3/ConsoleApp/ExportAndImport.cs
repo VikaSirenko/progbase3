@@ -29,37 +29,59 @@ public static class ExportAndImport
         output.Close();
     }
 
-    public static void DoImport(string inputFile, PostRepository postRepository, CommentRepository commentRepository)
+    public static void DoImportOfPosts(string inputFile, PostRepository postRepository)
     {
 
         XmlSerializer serializer = new XmlSerializer(typeof(List<Post>));
         StreamReader reader = new StreamReader(inputFile);
         List<Post> posts = (List<Post>)serializer.Deserialize(reader);
         reader.Close();
-        AddImportedDataToDB(posts, postRepository, commentRepository);
+        AddPostsToBd(posts, postRepository);
+
 
     }
 
-    private static void AddImportedDataToDB(List<Post> posts, PostRepository postRepository, CommentRepository commentRepository)
+    public static void DoImportOfComments(string inputFile, CommentRepository commentRepository)
     {
-        for (int i = 0; i < posts.Count; i++)
+
+        XmlSerializer serializer = new XmlSerializer(typeof(List<Comment>));
+        StreamReader reader = new StreamReader(inputFile);
+        List<Comment> comments = (List<Comment>)serializer.Deserialize(reader);
+        reader.Close();
+        AddCommentsToBd(comments, commentRepository);
+
+    }
+
+    private static void AddPostsToBd(List<Post> posts, PostRepository postRepository)
+    {
+        if (posts.Count != 0)
         {
-            if (!postRepository.PostExists(posts[i].id))
+            for (int i = 0; i < posts.Count; i++)
             {
-                posts[i].imported = true;
-                postRepository.Insert(posts[i]);
-                for (int j = 0; j < posts[i].comments.Count; j++)
+                if (!postRepository.PostExists(posts[i].id))
                 {
-                    if (!commentRepository.CommentExists(posts[i].comments[j].id))
-                    {
-                        posts[i].comments[j].imported = true;
-                        commentRepository.Insert(posts[i].comments[j]);
-                    }
+                    posts[i].imported = true;
+                    postRepository.Insert(posts[i]);
                 }
             }
-
         }
 
     }
+
+    private static void AddCommentsToBd(List<Comment> comments, CommentRepository commentRepository)
+    {
+        if (comments.Count != 0)
+        {
+            for (int i = 0; i < comments.Count; i++)
+            {
+                if (!commentRepository.CommentExists(comments[i].id))
+                {
+                    comments[i].imported = true;
+                    commentRepository.Insert(comments[i]);
+                }
+            }
+        }
+    }
+
 
 }

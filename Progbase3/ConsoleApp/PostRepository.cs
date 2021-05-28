@@ -218,51 +218,28 @@ public class PostRepository
     }
 
 
-    public List<Post> FilterByPostText(string value)
+    public List<Post> GetListOfFilteredPosts(string value)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"SELECT * FROM posts, comments WHERE posts.publicationText LIKE '%' || $value || '%'  AND  posts.id=comments.postId ";
+        command.CommandText = @"SELECT * FROM posts WHERE posts.publicationText LIKE '%' || $value || '%'  ";
         command.Parameters.AddWithValue("$value", value);
 
         SqliteDataReader reader = command.ExecuteReader();
+        List<Post> postsList = new List<Post>();
 
-        List<Post> posts = new List<Post>();
-        Post post = new Post();
-        //post.comments = new List<Comment>();
         while (reader.Read())
         {
+            Post post = new Post();
             post = ParsePostData(reader, post);
-
-            if (!IsPostExist(post, posts))
-            {
-                posts.Add(post);
-                post.comments = new List<Comment>();
-                break;
-            }
-
-            Comment comment = new Comment();
-            comment = ParseCommentData(reader, comment);
-            post.comments.Add(comment);
+            postsList.Add(post);
         }
 
         reader.Close();
         connection.Close();
-        return posts;
+        return postsList;
     }
 
-    private bool IsPostExist(Post post, List<Post> posts)
-    {
-        for (int i = 0; i < posts.Count; i++)
-        {
-            if (post.id == posts[i].id)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     public List<Post> GetPageOfUserPosts(long userId, int pageNumber, int pageLength)
     {

@@ -11,9 +11,10 @@ public class Post
     public long userId;
     public long pinCommentId;
 
-    //[NonSerialized]
+    [XmlIgnore]
     public List<Comment> comments;
 
+    [XmlIgnore]
     public bool imported;
 
     public Post()
