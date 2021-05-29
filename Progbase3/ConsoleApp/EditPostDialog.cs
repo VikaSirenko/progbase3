@@ -26,7 +26,7 @@ public class EditPostDialog : CreatePostDialog
 
     private void OnChooseComment()
     {
-        ChooseCommentDialog dialog = new ChooseCommentDialog();
+        PinCommentDialog dialog = new PinCommentDialog();
         dialog.SetData(commentRepository, currentPost.id);
         Application.Run(dialog);
         if (dialog.selectedComment != null)

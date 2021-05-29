@@ -11,6 +11,7 @@ public class PostRepository
         this.connection = connection;
     }
 
+    //checks if there is a post in the database
     public bool PostExists(long id)
     {
         connection.Open();
@@ -22,6 +23,8 @@ public class PostRepository
         connection.Close();
         return result;
     }
+
+    //returns the number of all posts in the database
     public long GetCount()
     {
         connection.Open();
@@ -32,6 +35,7 @@ public class PostRepository
         return count;
     }
 
+    //adds a comment to the database
     public long Insert(Post post)
     {
         connection.Open();
@@ -52,6 +56,7 @@ public class PostRepository
         return newId;
     }
 
+    //returns a list of posts created by the user
     public List<Post> GetAllByUserId(long userId)
     {
         connection.Open();
@@ -74,6 +79,7 @@ public class PostRepository
 
     }
 
+    //returns the post by its ID
     public Post GetByPostId(long id)
     {
         connection.Open();
@@ -100,6 +106,7 @@ public class PostRepository
     }
 
 
+    //parses post data from database
     private Post ParsePostData(SqliteDataReader reader, Post post)
     {
         bool isId = long.TryParse(reader.GetString(0), out post.id);
@@ -125,7 +132,7 @@ public class PostRepository
 
     }
 
-
+    //updates the post
     public bool Update(Post post, long postId)
     {
         connection.Open();
@@ -140,6 +147,8 @@ public class PostRepository
 
     }
 
+
+    //deletes the post by its id
     public bool Delete(long postId)
     {
         connection.Open();
@@ -152,6 +161,8 @@ public class PostRepository
 
     }
 
+
+    //returns a list of IDs of all posts (needed to generate comments)
     public List<long> GetListOfPostsId(long userId)
     {
         connection.Open();
@@ -172,6 +183,7 @@ public class PostRepository
     }
 
 
+    //deletes all user-created posts
     public void DeleteAllByUserId(long userId)
     {
         connection.Open();
@@ -183,11 +195,14 @@ public class PostRepository
 
     }
 
+
+    //returns the number of pages of all posts
     public int GetTotalPages(int pageLength)
     {
         return (int)Math.Ceiling(this.GetCount() / (double)pageLength);
     }
 
+    //returns a page with posts
     public List<Post> GetPageOfPosts(int pageNumber, int pageLength)
     {
         connection.Open();
@@ -218,6 +233,7 @@ public class PostRepository
     }
 
 
+    //returns a list with posts that are filtered by matching text
     public List<Post> GetListOfFilteredPosts(string value)
     {
         connection.Open();
@@ -241,6 +257,7 @@ public class PostRepository
     }
 
 
+    //returns the user's posts page
     public List<Post> GetPageOfUserPosts(long userId, int pageNumber, int pageLength)
     {
         if (pageNumber < 1)
@@ -268,6 +285,9 @@ public class PostRepository
         return posts;
     }
 
+
+
+    ////returns a page with posts that are filtered by matching text
     public List<Post> GetPageOfFilteredPosts(string value, int pageNumber, int pageLength)
     {
         if (pageNumber < 1)
@@ -295,28 +315,7 @@ public class PostRepository
         return posts;
 
     }
-    private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
-    {
-        bool isId = long.TryParse(reader.GetString(6), out comment.id);
-        bool isCommentedAt = DateTime.TryParse(reader.GetString(8), out comment.commentedAt);
-        bool isUserId = long.TryParse(reader.GetString(9), out comment.userId);
-        bool isPostId = long.TryParse(reader.GetString(10), out comment.postId);
-        bool isImported = bool.TryParse(reader.GetString(11), out comment.imported);
-        if (isId && isUserId && isCommentedAt && isPostId && isImported)
-        {
-            comment.id = long.Parse(reader.GetString(6));
-            comment.commentText = reader.GetString(7);
-            comment.commentedAt = DateTime.Parse(reader.GetString(8));
-            comment.userId = long.Parse(reader.GetString(9));
-            comment.postId = long.Parse(reader.GetString(10));
-            comment.imported = bool.Parse(reader.GetString(11));
-            return comment;
-        }
-        else
-        {
-            throw new FormatException("Values cannot be parsed");
 
-        }
-    }
+
 
 }

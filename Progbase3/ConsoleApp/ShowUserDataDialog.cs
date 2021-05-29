@@ -1,5 +1,5 @@
 using Terminal.Gui;
-public class UserDataDialog : Dialog
+public class ShowUserDataDialog : Dialog
 {
     private UserRepository userRepository;
     private PostRepository postRepository;
@@ -8,7 +8,7 @@ public class UserDataDialog : Dialog
 
     public bool isUserRemoved;
 
-    public UserDataDialog()
+    public ShowUserDataDialog()
     {
         this.Title = "My information";
         Button backBtn = new Button(25, 18, "Back");

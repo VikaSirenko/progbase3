@@ -2,7 +2,7 @@ using Terminal.Gui;
 using System.Collections.Generic;
 
 
-    public class ChooseCommentDialog : Dialog
+    public class PinCommentDialog : Dialog
     {
         private ListView allCommentsListView;
 
@@ -17,7 +17,7 @@ using System.Collections.Generic;
         private Label isEmptyListLbl;
         private long selectedPostId;
 
-        public ChooseCommentDialog()
+        public PinCommentDialog()
         {
             this.Title = "Pin comment";
             allCommentsListView = new ListView(new List<Comment>())

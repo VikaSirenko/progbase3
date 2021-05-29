@@ -1,7 +1,7 @@
 using Terminal.Gui;
 using System.Collections.Generic;
 
-public class ShowPostsDialog : Dialog
+public class ShowAllPostsDialog : Dialog
 {
     private ListView allPostsListView;
     private int pageLength = 10;
@@ -14,7 +14,7 @@ public class ShowPostsDialog : Dialog
     private CommentRepository commentRepository;
     private Label isEmptyListLbl;
     private User currentUser;
-    public ShowPostsDialog(User currentUser)
+    public ShowAllPostsDialog(User currentUser)
     {
         this.currentUser = currentUser;
         this.Title = "Show posts";

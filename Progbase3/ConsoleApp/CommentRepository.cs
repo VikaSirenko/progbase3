@@ -11,6 +11,7 @@ public class CommentRepository
     }
 
 
+    // adds a comment to the database
     public long Insert(Comment comment)
     {
         connection.Open();
@@ -31,6 +32,7 @@ public class CommentRepository
         return newId;
     }
 
+    //returns a list of comments created by the user
     public List<Comment> GetAllByUserId(long userId)
     {
         connection.Open();
@@ -53,6 +55,31 @@ public class CommentRepository
 
     }
 
+
+    //returns a list of comments belonging to the post
+    public List<Comment> GetAllByPostId(long postId)
+    {
+        connection.Open();
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT * FROM comments WHERE postId = $postId";
+        command.Parameters.AddWithValue("$postId", postId);
+        SqliteDataReader reader = command.ExecuteReader();
+        List<Comment> comments = new List<Comment>();
+
+        while (reader.Read())
+        {
+            Comment comment = new Comment();
+            comment = ParseCommentData(reader, comment);
+            comments.Add(comment);
+        }
+
+        reader.Close();
+        connection.Close();
+        return comments;
+
+    }
+
+    //returns a list of comments for the filtered posts
     public List<Comment> GetAllFiltredComments(long postId, List<Comment> comments)
     {
         connection.Open();
@@ -75,6 +102,7 @@ public class CommentRepository
     }
 
 
+    // parses comment data from a database
     private Comment ParseCommentData(SqliteDataReader reader, Comment comment)
     {
         bool isId = long.TryParse(reader.GetString(0), out comment.id);
@@ -101,6 +129,7 @@ public class CommentRepository
 
 
 
+    //returns a comment on its id
     public Comment GetByCommentId(long id)
     {
         connection.Open();
@@ -127,7 +156,7 @@ public class CommentRepository
 
 
 
-
+    // updates the comment
     public bool Update(Comment comment, long commentId)
     {
         connection.Open();
@@ -141,6 +170,8 @@ public class CommentRepository
 
     }
 
+
+    //removes the comment by id
     public bool Delete(long commentId)
     {
         connection.Open();
@@ -152,6 +183,8 @@ public class CommentRepository
         return nChanges == 1;
     }
 
+
+    //returns the number of all comments
     public long GetCount()
     {
         connection.Open();
@@ -162,6 +195,8 @@ public class CommentRepository
         return count;
     }
 
+
+    //returns the number of comments that belong to filtered posts
     public long GetCountOfFilterComments(long postId)
     {
         connection.Open();
@@ -172,17 +207,23 @@ public class CommentRepository
         connection.Close();
         return count;
     }
+
+
+
+    //returns the number of pages of all posts belonging to filtered posts
     public int GetTotalPagesOfFilterComments(int pageLength, long postId)
     {
         return (int)Math.Ceiling(this.GetCountOfFilterComments(postId) / (double)pageLength);
     }
 
 
+    ////returns the number of pages of all posts
     public int GetTotalPages(int pageLength)
     {
         return (int)Math.Ceiling(this.GetCount() / (double)pageLength);
     }
 
+    //returns a comment page
     public List<Comment> GetPageOfComments(int pageNumber, int pageLength)
     {
         connection.Open();
@@ -213,6 +254,7 @@ public class CommentRepository
     }
 
 
+    //returns a page of comments belonging to the selected post
     public List<Comment> GetPageOfCommentsOfSelectedPost(int pageNumber, int pageLength, long postId)
     {
         connection.Open();
@@ -244,6 +286,8 @@ public class CommentRepository
 
     }
 
+
+    //deletes all comments belonging to the user
     public void DeleteAllByUserId(long userId)
     {
         connection.Open();
@@ -254,15 +298,20 @@ public class CommentRepository
         connection.Close();
     }
 
+
+    //deletes all comments belonging to the post
     public void DeleteAllByPostId(long postId)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();
         command.CommandText = @"DELETE FROM comments WHERE postId=$postId";
         command.Parameters.AddWithValue("$postId", postId);
+        int nChanges = command.ExecuteNonQuery();
         connection.Close();
     }
 
+
+    //checks if this comment is in the database
     public bool CommentExists(long id)
     {
         connection.Open();
@@ -276,6 +325,7 @@ public class CommentRepository
     }
 
 
+    //returns a page of comments that have been created by the user
     public List<Comment> GetPageOfUserComments(long userId, int pageNumber, int pageLength)
     {
         if (pageNumber < 1)

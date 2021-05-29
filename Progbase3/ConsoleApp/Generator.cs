@@ -122,7 +122,7 @@ public static class Generator
                     string[] publicationText = (FindRandomLineInFile(postPath, postsLines)).Split(",");
                     post.publicationText = publicationText[1];
                     post.publishedAt = RandomDateTime(times);
-                    post.pinCommentId = default;                                   //TODO
+                    post.pinCommentId = default;                                   
                     PostRepository postRepository = new PostRepository(connection);
                     postRepository.Insert(post);
                     numberOfPosts--;
@@ -177,7 +177,7 @@ public static class Generator
                     string commentsPath = "/home/vika/projects/progbase3/data/generator/comments.csv";
                     int commentsLines = 100000;
                     string[] commentText = (FindRandomLineInFile(commentsPath, commentsLines)).Split(",");
-                    comment.commentText = commentText[1];                  //TODO
+                    comment.commentText = commentText[1];                  
                     comment.commentedAt = RandomDateTime(times);
                     Post post = postRepository.GetByPostId(comment.userId);
                     CommentRepository commentRepository = new CommentRepository(connection);

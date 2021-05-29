@@ -11,7 +11,7 @@ public class ImportPostDialog : Dialog
     {
         this.Title = "Import posts";
         Button selectedBtn = new Button(4, 4, "Open folder");
-        selectedBtn.Clicked += SelectFile;
+        selectedBtn.Clicked += SelectFolder;
 
         fileLabel = new Label("")
         {
@@ -61,9 +61,9 @@ public class ImportPostDialog : Dialog
 
     }
 
-    private void SelectFile()
+    private void SelectFolder()
     {
-        OpenDialog dialog = new OpenDialog("Open XML file", "Open?");
+        OpenDialog dialog = new OpenDialog("Open folder", "Open?");
         dialog.DirectoryPath = "/home/vika/projects/progbase3/data/importAndExportFiles";
         Application.Run(dialog);
 

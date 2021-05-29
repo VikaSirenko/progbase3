@@ -19,30 +19,26 @@ public class MainWindow : Window
 
         if (currentUser.userName == "ADMIN" && currentUser.passwordHash == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
         {
-            Button showUsersBtn = new Button(2, 8, "Show users");
-            showUsersBtn.Clicked += OnShowUsersClicked;
-            this.Add(showUsersBtn);
 
-            Button showPostsBtn = new Button(2, 10, "Show posts");
-            showPostsBtn.Clicked += OnShowPostsClicked;
-            this.Add(showPostsBtn);
-
-        }
-        else
-        {
-
-            Button showUsersBtn = new Button(2, 8, "Show all users");
-            showUsersBtn.Clicked += OnShowUsersClicked;
-            this.Add(showUsersBtn);
-
-            Button showPostsBtn = new Button(2, 10, "Show all posts");
-            showPostsBtn.Clicked += OnShowPostsClicked;
-            this.Add(showPostsBtn);
-
+            Button showAllcomments = new Button(2, 12, "Show all comments");
+            showAllcomments.Clicked += OnShowCommentsClicked;
+            this.Add(showAllcomments);
 
         }
 
-        Button showInformationBtn = new Button(2, 12, "Show my information");
+
+        Button showUsersBtn = new Button(2, 8, "Show all users");
+        showUsersBtn.Clicked += OnShowUsersClicked;
+        this.Add(showUsersBtn);
+
+        Button showPostsBtn = new Button(2, 10, "Show all posts");
+        showPostsBtn.Clicked += OnShowPostsClicked;
+        this.Add(showPostsBtn);
+
+
+
+
+        Button showInformationBtn = new Button(2, 14, "Show my information");
         showInformationBtn.Clicked += OnShowInformationClicked;
         this.Add(showInformationBtn);
 
@@ -58,6 +54,18 @@ public class MainWindow : Window
 
         this.Add(menu);
 
+        Button genereteReportBtn = new Button(2, 16, "Generete report");
+        genereteReportBtn.Clicked += OnGenereteReportClicked;
+        this.Add(genereteReportBtn);
+
+
+    }
+
+    private void OnGenereteReportClicked()
+    {
+        GeneretionReportDialog dialog = new GeneretionReportDialog();
+        dialog.SetData(currentUser, postRepository, commentRepository);
+        Application.Run(dialog);
 
     }
 
@@ -82,7 +90,7 @@ public class MainWindow : Window
     }
     private void OnShowInformationClicked()
     {
-        UserDataDialog dialog = new UserDataDialog();
+        ShowUserDataDialog dialog = new ShowUserDataDialog();
         dialog.SetData(userRepository, postRepository, commentRepository, currentUser);
         Application.Run(dialog);
         if (dialog.isUserRemoved == true)
@@ -101,21 +109,21 @@ public class MainWindow : Window
 
     private void OnShowUsersClicked()
     {
-        ShowUsersDialog dialog = new ShowUsersDialog(currentUser);
+        ShowAllUsersDialog dialog = new ShowAllUsersDialog(currentUser);
         dialog.SetData(userRepository, postRepository, commentRepository);
         Application.Run(dialog);
     }
 
     private void OnShowPostsClicked()
     {
-        ShowPostsDialog dialog = new ShowPostsDialog(currentUser);
+        ShowAllPostsDialog dialog = new ShowAllPostsDialog(currentUser);
         dialog.SetData(postRepository, commentRepository);
         Application.Run(dialog);
     }
 
     private void OnShowCommentsClicked()
     {
-        ShowCommentsDialog dialog = new ShowCommentsDialog(currentUser);
+        ShowAllCommentsDialog dialog = new ShowAllCommentsDialog(currentUser);
         dialog.SetData(commentRepository);
         Application.Run(dialog);
     }

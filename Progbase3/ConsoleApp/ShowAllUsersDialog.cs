@@ -2,7 +2,7 @@ using Terminal.Gui;
 using System.Collections.Generic;
 
 
-public class ShowUsersDialog : Dialog
+public class ShowAllUsersDialog : Dialog
 {
     private ListView allUsersListView;
 
@@ -18,7 +18,7 @@ public class ShowUsersDialog : Dialog
     private Label isEmptyListLbl;
     private User currentUser;
 
-    public ShowUsersDialog(User currentUser)
+    public ShowAllUsersDialog(User currentUser)
     {
         this.currentUser = currentUser;
         this.Title = "Show users";

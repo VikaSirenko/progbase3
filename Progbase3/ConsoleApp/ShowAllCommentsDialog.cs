@@ -2,7 +2,7 @@ using Terminal.Gui;
 using System.Collections.Generic;
 
 
-public class ShowCommentsDialog : Dialog
+public class ShowAllCommentsDialog : Dialog
 {
     private ListView allCommentsListView;
 
@@ -15,7 +15,7 @@ public class ShowCommentsDialog : Dialog
     private CommentRepository commentRepository;
     private Label isEmptyListLbl;
     private User currentUser;
-    public ShowCommentsDialog(User currentUser)
+    public ShowAllCommentsDialog(User currentUser)
     {
         this.currentUser = currentUser;
         this.Title = "Show comments";
@@ -25,7 +25,6 @@ public class ShowCommentsDialog : Dialog
             Height = Dim.Fill(),
 
         };
-        //????????????????????????????????????????????
         Button createCommentBtn = new Button(4, 18, "Create comment");
         createCommentBtn.Clicked += OnCreateCommentClicked;
         this.Add(createCommentBtn);
