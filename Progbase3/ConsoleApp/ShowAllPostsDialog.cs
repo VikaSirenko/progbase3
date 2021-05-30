@@ -85,6 +85,7 @@ public class ShowAllPostsDialog : Dialog
 
                 long id = postRepository.Insert(post);
                 post.id = id;
+                ShowCurrentPage();
             }
         }
 

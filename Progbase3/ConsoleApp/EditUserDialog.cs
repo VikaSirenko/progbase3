@@ -1,5 +1,5 @@
 using Terminal.Gui;
-using System.Collections.Generic;
+
 public class EditUserDialog : Dialog
 {
     public bool canceled;
@@ -16,8 +16,8 @@ public class EditUserDialog : Dialog
         this.Title = "Edit user";
         Button okBtn = new Button("Ok");
         Button cancelBtn = new Button("Cancel");
-        cancelBtn.Clicked += OnCreateDialogCanceled;
-        okBtn.Clicked += OnCreateButtonSubmit;
+        cancelBtn.Clicked += OnEditDialogCanceled;
+        okBtn.Clicked += OnEditButtonSubmit;
         this.AddButton(cancelBtn);
         this.AddButton(okBtn);
         int rightColumn = 25;
@@ -28,7 +28,7 @@ public class EditUserDialog : Dialog
         {
             X = rightColumn,
             Y = Pos.Top(userNameLbl),
-            Width = 40,
+            Width = 50,
 
         };
         this.Add(userNameLbl, userNameInput);
@@ -38,7 +38,7 @@ public class EditUserDialog : Dialog
         {
             X = rightColumn,
             Y = Pos.Top(passwordLbl),
-            Width = 40,
+            Width = 50,
             Secret = true,
         };
 
@@ -49,7 +49,7 @@ public class EditUserDialog : Dialog
         {
             X = rightColumn,
             Y = Pos.Top(fullNameLbl),
-            Width = 40,
+            Width = 50,
         };
         this.Add(fullNameLbl, fullNameInput);
 
@@ -66,13 +66,13 @@ public class EditUserDialog : Dialog
 
     }
 
-    private void OnCreateDialogCanceled()
+    private void OnEditDialogCanceled()
     {
         this.canceled = true;
         Application.RequestStop();
     }
 
-    private void OnCreateButtonSubmit()
+    private void OnEditButtonSubmit()
     {
         this.canceled = false;
         Application.RequestStop();

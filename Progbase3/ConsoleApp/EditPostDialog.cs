@@ -11,7 +11,7 @@ public class EditPostDialog : CreatePostDialog
     public EditPostDialog()
     {
         this.Title = "Edit post";
-        Button chooseCommentBtn = new Button(4, 10, "Pin comment");
+        Button chooseCommentBtn = new Button(2, 7, "Pin comment");
         this.Add(chooseCommentBtn);
         chooseCommentBtn.Clicked += OnChooseComment;
 

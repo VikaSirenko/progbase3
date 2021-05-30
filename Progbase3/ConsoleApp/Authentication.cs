@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Terminal.Gui;
 
-
 public static class Authentication
 {
     public static string ConvertToHash(string password)
@@ -23,6 +22,7 @@ public static class Authentication
         {
             sBuilder.Append(data[i].ToString("x2"));
         }
+
         return sBuilder.ToString();
     }
 
@@ -37,7 +37,6 @@ public static class Authentication
 
     public static void DoAuthorization(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
     {
-
         while (true)
         {
             Application.Init();
@@ -45,7 +44,6 @@ public static class Authentication
             AuthenticationWindow window = new AuthenticationWindow();
             window.SetRepository(userRepository, postRepository, commentRepository);
             top.Add(window);
-
             Application.Run();
         }
 

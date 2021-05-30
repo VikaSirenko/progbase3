@@ -1,10 +1,7 @@
 using Terminal.Gui;
-
-
 public class AuthenticationWindow : Window
 {
     private UserRepository userRepository;
-
     private PostRepository postRepository;
     private CommentRepository commentRepository;
     private TextField userNameInput;

@@ -110,7 +110,6 @@ public class OpenUserDialog : Dialog
             }
             else
             {
-
                 this.SetData(updatedUser, postRepository, commentRepository);
                 this.updated = true;
             }

@@ -37,7 +37,7 @@ public static class ReportGeneration
 
     }
 
-    private static List<Post> GetListOfPostsOnTimeInterval(DateTime start, DateTime end, User currentUser, PostRepository postRepository)
+    public static List<Post> GetListOfPostsOnTimeInterval(DateTime start, DateTime end, User currentUser, PostRepository postRepository)
     {
         List<Post> postsOnInterval = new List<Post>();
         currentUser.posts = postRepository.GetAllByUserId(currentUser.id);
@@ -57,7 +57,7 @@ public static class ReportGeneration
 
     }
 
-    private static List<Comment> GetListOfCommentsOnTimeInterval(DateTime start, DateTime end, User currentUser, CommentRepository commentRepository)
+    public static List<Comment> GetListOfCommentsOnTimeInterval(DateTime start, DateTime end, User currentUser, CommentRepository commentRepository)
     {
         List<Comment> commentsOnInterval = new List<Comment>();
         currentUser.comments = commentRepository.GetAllByUserId(currentUser.id);
@@ -96,7 +96,7 @@ public static class ReportGeneration
 
     }
 
-    static void FindAndReplace(XElement node, Dictionary<string, string> dict)
+    private static void FindAndReplace(XElement node, Dictionary<string, string> dict)
     {
         if (node.FirstNode != null
             && node.FirstNode.NodeType == XmlNodeType.Text)

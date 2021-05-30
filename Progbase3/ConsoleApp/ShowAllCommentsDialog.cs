@@ -86,7 +86,7 @@ public class ShowAllCommentsDialog : Dialog
             else
             {
                 comment.userId = currentUser.id;
-                comment.postId = default; //TODO
+                comment.postId = default; 
 
                 long id = commentRepository.Insert(comment);
                 comment.id = id;

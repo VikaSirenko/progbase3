@@ -10,6 +10,7 @@ public class UserRepository
         this.connection = connection;
     }
 
+    //checks if the user exists by his username and password
     public bool UserExists(string userName, string passwordHash)
     {
         connection.Open();
@@ -22,6 +23,8 @@ public class UserRepository
         connection.Close();
         return result;
     }
+
+    //returns the number of users in the database
     public long GetCount()
     {
         connection.Open();
@@ -33,6 +36,7 @@ public class UserRepository
 
     }
 
+    //checks if the user exists by his ID (necessary for generation)
     public bool UserExistsById(long id)
     {
         connection.Open();
@@ -46,6 +50,8 @@ public class UserRepository
 
     }
 
+
+    //adds a new user to the database
     public long Insert(User user)
     {
         connection.Open();
@@ -65,6 +71,8 @@ public class UserRepository
         return newId;
     }
 
+
+    //finds the user in the database by his username and password and returns it
     public User GetUser(string userName, string passwordHash)
     {
         connection.Open();
@@ -86,7 +94,7 @@ public class UserRepository
     }
 
 
-
+    //deletes the user by his ID
     public bool Delete(long id)
     {
         connection.Open();
@@ -98,6 +106,8 @@ public class UserRepository
         return nChanges == 1;
     }
 
+
+    //updates the user
     public bool Update(User user, long userId)
     {
         connection.Open();
@@ -119,6 +129,8 @@ public class UserRepository
 
     }
 
+
+    //parses user data that came from the database
     private User ParseUser(SqliteDataReader reader)
     {
         User user = new User();
@@ -143,6 +155,7 @@ public class UserRepository
     }
 
 
+    //returns a list of user IDs
     public List<long> GetListOfUsersId()
     {
         connection.Open();
@@ -162,11 +175,14 @@ public class UserRepository
     }
 
 
+    //counts how many user pages there are
     public int GetTotalPages(int pageLength)
     {
         return (int)Math.Ceiling(this.GetCount() / (double)pageLength);
     }
 
+
+    //returns a page with users
     public List<User> GetPageOfUsers(int pageNumber, int pageLength)
     {
         connection.Open();

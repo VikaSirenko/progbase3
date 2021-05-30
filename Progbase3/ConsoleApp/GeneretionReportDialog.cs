@@ -1,5 +1,6 @@
 using Terminal.Gui;
 using System.IO;
+using System;
 public class GeneretionReportDialog : Dialog
 {
 
@@ -110,10 +111,25 @@ public class GeneretionReportDialog : Dialog
     {
         if (!startDate.Text.IsEmpty && !endDate.Text.IsEmpty && !pathToFolder.Text.IsEmpty)
         {
-            if (!File.Exists(pathToFolder.Text.ToString() + "/" + nameOfImage.Text.ToString() + ".png") && isGenereteImageClicked == false)
+            string saveFile = pathToFolder.Text.ToString() + "/" + nameOfImage.Text.ToString() + ".png";
+            if (!File.Exists(saveFile) && isGenereteImageClicked == false)
             {
                 isGenereteImageClicked = true;
-                //TODO generete
+                DateTime firstDay = DateTime.Parse(startDate.Text.ToString());
+                DateTime lastDay = DateTime.Parse(endDate.Text.ToString());
+                int countOfPosts = ReportGeneration.GetListOfPostsOnTimeInterval(firstDay, lastDay, currentUser, postRepository).Count;
+                int countOfComments = ReportGeneration.GetListOfCommentsOnTimeInterval(firstDay, lastDay, currentUser, commentRepository).Count;
+                try
+                {
+                    Image.GenereteImage(countOfPosts, countOfComments, firstDay, saveFile);
+                    MessageBox.Query("Image", $"Graphics image saved in: '{saveFile}'", "OK");
+                }
+                catch
+                {
+                    MessageBox.ErrorQuery("ERROR", "There is no data to create a graphic image", "OK");
+                }
+
+
             }
             else
             {
@@ -138,6 +154,10 @@ public class GeneretionReportDialog : Dialog
             {
                 if (!File.Exists(reportPath))
                 {
+                    if (isGenereteImageClicked == false)
+                    {
+                        OnGenereteImage();
+                    }
                     ReportGeneration.GenereteReport(startDate.Text.ToString(), endDate.Text.ToString(),
                              imagePath, reportPath, postRepository, commentRepository, currentUser);
                     MessageBox.Query("Report generation", $"Report saved in: '{reportPath}'", "OK");

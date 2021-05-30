@@ -15,7 +15,7 @@ public class ShowUserDataDialog : Dialog
         backBtn.Clicked += OnBackClicked;
         this.Add(backBtn);
 
-        Button showAccountBtn = new Button(4, 4, "Account management");
+        Button showAccountBtn = new Button(4, 4, "My profile");
         showAccountBtn.Clicked += OnAccountManagement;
         this.Add(showAccountBtn);
         Button showMyPostsBtn = new Button(4, 8, "Show my posts");
@@ -66,7 +66,7 @@ public class ShowUserDataDialog : Dialog
         {
             postRepository.DeleteAllByUserId(user.id);
             commentRepository.DeleteAllByUserId(user.id);
-            isUserRemoved=true;
+            isUserRemoved = true;
             Application.RequestStop();
         }
 
@@ -86,6 +86,7 @@ public class ShowUserDataDialog : Dialog
             if (user.passwordHash == Authentication.ConvertToHash(""))
             {
                 updatedUser.passwordHash = user.passwordHash;
+                this.SetData(userRepository, postRepository, commentRepository, updatedUser);
             }
         }
 
