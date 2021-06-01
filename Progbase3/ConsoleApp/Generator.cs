@@ -9,7 +9,7 @@ public static class Generator
 {
     public static void GenerateEntities()
     {
-        string databaseFileName = "/home/vika/projects/progbase3/data/database";
+        string databaseFileName = "../../data/database";
         SqliteConnection connection = new SqliteConnection($"Data Source={databaseFileName}");
         bool run = true;
         while (run)
@@ -46,13 +46,13 @@ public static class Generator
     private static void GenereteUsers(SqliteConnection connection)
     {
 
-        string usernamesPath = "/home/vika/projects/progbase3/data/generator/usernames.csv";
+        string usernamesPath = "../../data/generator/usernames.csv";
         int usernamesLines = 150000;
-        string passwordsPath = "/home/vika/projects/progbase3/data/generator/passwords.csv";
+        string passwordsPath = "../../data/generator/passwords.csv";
         int passwordsLines = 150000;
-        string namesPath = "/home/vika/projects/progbase3/data/generator/names.csv";
+        string namesPath = "../../data/generator/names.csv";
         int namesLines = 2000;
-        string surnamePath = "/home/vika/projects/progbase3/data/generator/surnames.csv";
+        string surnamePath = "../../data/generator/surnames.csv";
         int surnameLines = 1800;
 
         WriteLine("How many users do you want to generate?");
@@ -117,7 +117,7 @@ public static class Generator
 
                 if (userRepository.UserExistsById(post.userId) == true)
                 {
-                    string postPath = "/home/vika/projects/progbase3/data/generator/posts.csv";
+                    string postPath = "../../data/generator/posts.csv";
                     int postsLines = 100000;
                     string[] publicationText = (FindRandomLineInFile(postPath, postsLines)).Split(",");
                     post.publicationText = publicationText[1];
@@ -174,7 +174,7 @@ public static class Generator
 
                 if (userRepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
                 {
-                    string commentsPath = "/home/vika/projects/progbase3/data/generator/comments.csv";
+                    string commentsPath = "../../data/generator/comments.csv";
                     int commentsLines = 100000;
                     string[] commentText = (FindRandomLineInFile(commentsPath, commentsLines)).Split(",");
                     comment.commentText = commentText[1];                  

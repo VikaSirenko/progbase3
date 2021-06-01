@@ -9,7 +9,6 @@ public class GeneretionReportDialog : Dialog
     private Label pathToFolder;
     private TextField nameOfImage;
     private TextField nameOfReport;
-    private bool isGenereteImageClicked = false;
     private User currentUser;
     private PostRepository postRepository;
     private CommentRepository commentRepository;
@@ -92,7 +91,7 @@ public class GeneretionReportDialog : Dialog
     private void SelectFolder()
     {
         OpenDialog dialog = new OpenDialog("Open folder", "Open?");
-        dialog.DirectoryPath = "/home/vika/projects/progbase3/data/reportData";
+        dialog.DirectoryPath = "../../data/reportData";
         Application.Run(dialog);
 
         if (!dialog.Canceled)
@@ -112,21 +111,26 @@ public class GeneretionReportDialog : Dialog
         if (!startDate.Text.IsEmpty && !endDate.Text.IsEmpty && !pathToFolder.Text.IsEmpty)
         {
             string saveFile = pathToFolder.Text.ToString() + "/" + nameOfImage.Text.ToString() + ".png";
-            if (!File.Exists(saveFile) && isGenereteImageClicked == false)
+            if (!File.Exists(saveFile))
             {
-                isGenereteImageClicked = true;
                 DateTime firstDay = DateTime.Parse(startDate.Text.ToString());
                 DateTime lastDay = DateTime.Parse(endDate.Text.ToString());
-                int countOfPosts = ReportGeneration.GetListOfPostsOnTimeInterval(firstDay, lastDay, currentUser, postRepository).Count;
-                int countOfComments = ReportGeneration.GetListOfCommentsOnTimeInterval(firstDay, lastDay, currentUser, commentRepository).Count;
-                try
+                if (lastDay > firstDay)
                 {
-                    Image.GenereteImage(countOfPosts, countOfComments, firstDay, saveFile);
-                    MessageBox.Query("Image", $"Graphics image saved in: '{saveFile}'", "OK");
+
+                    try
+                    {
+                        Image.GenereteImage(postRepository, commentRepository, firstDay, lastDay, saveFile, currentUser);
+                        MessageBox.Query("Image", $"Graphics image saved in: '{saveFile}'", "OK");
+                    }
+                    catch
+                    {
+                        MessageBox.ErrorQuery("ERROR", "There is no data to create a graphic image", "OK");
+                    }
                 }
-                catch
+                else
                 {
-                    MessageBox.ErrorQuery("ERROR", "There is no data to create a graphic image", "OK");
+                    MessageBox.ErrorQuery("ERROR", "Time intervals are set incorrectly", "OK");
                 }
 
 
@@ -152,12 +156,11 @@ public class GeneretionReportDialog : Dialog
         {
             try
             {
-                if (!File.Exists(reportPath))
+                if (!File.Exists(reportPath) && !File.Exists(imagePath))
                 {
-                    if (isGenereteImageClicked == false)
-                    {
-                        OnGenereteImage();
-                    }
+
+                    OnGenereteImage();
+
                     ReportGeneration.GenereteReport(startDate.Text.ToString(), endDate.Text.ToString(),
                              imagePath, reportPath, postRepository, commentRepository, currentUser);
                     MessageBox.Query("Report generation", $"Report saved in: '{reportPath}'", "OK");
@@ -165,7 +168,7 @@ public class GeneretionReportDialog : Dialog
                 }
                 else
                 {
-                    MessageBox.ErrorQuery("ERROR", "Report file already exists. Rename the file", "OK");
+                    MessageBox.ErrorQuery("ERROR", "Report file or image already exists. Rename the files", "OK");
                 }
             }
             catch (System.Exception ex)

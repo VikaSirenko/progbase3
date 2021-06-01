@@ -49,6 +49,7 @@ public class MainWindow : Window
                     new MenuItem("Exit", "", OnExit)
                 }),
                 new MenuBarItem("Help", new MenuItem[]{
+                    new MenuItem ("About program","", OnAboutProgram)
                 })
             });
 
@@ -59,6 +60,12 @@ public class MainWindow : Window
         this.Add(genereteReportBtn);
 
 
+    }
+
+    private void OnAboutProgram()
+    {
+        AboutProgramDialog dialog = new AboutProgramDialog();
+        Application.Run(dialog);
     }
 
     private void OnGenereteReportClicked()

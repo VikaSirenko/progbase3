@@ -12,12 +12,9 @@ public static class ReportGeneration
     {
         DateTime startDate = DateTime.Parse(start);
         DateTime endDate = DateTime.Parse(end);
-        string zipPath = "/home/vika/projects/progbase3/data/reportData/reportTemplate.docx";
-        string extractPath = "/home/vika/projects/progbase3/data/reportData/reportExtract";
-        if (!File.Exists(extractPath + "/mimetype"))
-        {
-            ZipFile.ExtractToDirectory(zipPath, extractPath);
-        }
+        string zipPath = "../../data/reportData/reportTemplate.docx";
+        string extractPath = "../../data/reportData/reportExtract";
+        ZipFile.ExtractToDirectory(zipPath, extractPath);
         List<Post> postsOnInterval = GetListOfPostsOnTimeInterval(startDate, endDate, currentUser, postRepository);
         int postNum = postsOnInterval.Count;
         int comNum = GetListOfCommentsOnTimeInterval(startDate, endDate, currentUser, commentRepository).Count;
@@ -34,6 +31,7 @@ public static class ReportGeneration
         FindAndReplace(root, dict);
         root.Save(extractPath + "/content.xml");
         ZipFile.CreateFromDirectory(extractPath, savePath);
+        Directory.Delete(extractPath, true);
 
     }
 

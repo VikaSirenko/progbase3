@@ -64,7 +64,7 @@ public class ImportPostDialog : Dialog
     private void SelectFolder()
     {
         OpenDialog dialog = new OpenDialog("Open folder", "Open?");
-        dialog.DirectoryPath = "/home/vika/projects/progbase3/data/importAndExportFiles";
+        dialog.DirectoryPath = "../../data/importAndExportFiles";
         Application.Run(dialog);
 
         if (!dialog.Canceled)

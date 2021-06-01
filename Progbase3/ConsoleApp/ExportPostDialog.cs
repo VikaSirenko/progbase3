@@ -137,7 +137,7 @@ public class ExportPostDialog : Dialog
     private void SelectFolder()
     {
         OpenDialog dialog = new OpenDialog("Open folder", "Open?");
-        dialog.DirectoryPath = "/home/vika/projects/progbase3/data/importAndExportFiles";
+        dialog.DirectoryPath = "../../data/importAndExportFiles";
         Application.Run(dialog);
 
         if (!dialog.Canceled)
@@ -204,7 +204,7 @@ public class ExportPostDialog : Dialog
     private void PerformArchiving()
     {
         string startPath = pathToFolder.Text.ToString();
-        string resultPath = "/home/vika/projects/progbase3/data/importAndExportFiles/" + nameOfZip.Text.ToString() + ".zip";
+        string resultPath = "../../data/importAndExportFiles/" + nameOfZip.Text.ToString() + ".zip";
         if (!File.Exists(resultPath))
         {
             ZipFile.CreateFromDirectory(startPath, resultPath);
