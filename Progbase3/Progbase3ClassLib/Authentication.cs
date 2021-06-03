@@ -1,7 +1,6 @@
-using System;
 using System.Security.Cryptography;
 using System.Text;
-using Terminal.Gui;
+
 
 public static class Authentication
 {
@@ -26,20 +25,25 @@ public static class Authentication
         return sBuilder.ToString();
     }
 
-
-    public static void DoAuthorization(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
+    public static User DoRegistration(UserRepository userRepository, User user)
     {
-        while (true)
+        User currentUser = userRepository.GetUser(user.userName, user.passwordHash);
+        if (currentUser == null)
         {
-            Application.Init();
-            Toplevel top = Application.Top;
-            AuthenticationWindow window = new AuthenticationWindow();
-            window.SetRepository(userRepository, postRepository, commentRepository);
-            top.Add(window);
-            Application.Run();
+            long id = userRepository.Insert(user);
+            user.id = id;
+            return user;
         }
-
+        return null;
     }
+
+    public static User DoLogIn(UserRepository userRepository, string passwordInput, string userNameInput)
+    {
+        string passwordHash = ConvertToHash(passwordInput);
+        User currentUser = userRepository.GetUser(userNameInput, passwordHash);
+        return currentUser;
+    }
+
 
 
 }

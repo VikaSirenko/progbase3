@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using static System.Console;
 using System.Collections.Generic;
-
+using System.Data;
 
 public static class Generator
 {
@@ -11,33 +11,40 @@ public static class Generator
     {
         string databaseFileName = "../../data/database";
         SqliteConnection connection = new SqliteConnection($"Data Source={databaseFileName}");
-        bool run = true;
-        while (run)
+        try
         {
-            WriteLine("Enter the entity you want to generate");
-            string entity = ReadLine();
-
-            switch (entity)
+            bool run = true;
+            while (run)
             {
-                case "user":
-                    GenereteUsers(connection);
-                    break;
-                case "post":
-                    GeneretePosts(connection);
-                    break;
-                case "comment":
-                    GenereteComments(connection);
-                    break;
-                case "exit":
-                    run = false;
-                    break;
-                default:
-                    Console.Error.WriteLine($"[{entity}] cannot be generated,because such an entity is not listed. Try again.");
-                    break;
+                WriteLine("Enter the entity you want to generate");
+                string entity = ReadLine();
 
+                switch (entity)
+                {
+                    case "user":
+                        GenereteUsers(connection);
+                        break;
+                    case "post":
+                        GeneretePosts(connection);
+                        break;
+                    case "comment":
+                        GenereteComments(connection);
+                        break;
+                    case "exit":
+                        run = false;
+                        break;
+                    default:
+                        Console.Error.WriteLine($"[{entity}] cannot be generated,because such an entity is not listed. Try again.");
+                        break;
+
+                }
+
+                WriteLine();
             }
-
-            WriteLine();
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"Error connecting to data base: {ex.Message.ToString()} ");
         }
     }
 

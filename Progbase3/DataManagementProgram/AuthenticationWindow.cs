@@ -61,11 +61,10 @@ public class AuthenticationWindow : Window
 
             else
             {
-                User currentUser = userRepository.GetUser(user.userName, user.passwordHash);
-                if (currentUser == null)
+                User currentUser = Authentication.DoRegistration(userRepository, user);
+                if (currentUser != null)
                 {
-                    long id = userRepository.Insert(user);
-                    user.id = id;
+                    MessageBox.Query("Registration", "You have registered", "OK");
                     OpenMainWindow(currentUser);
                 }
                 else
@@ -87,26 +86,15 @@ public class AuthenticationWindow : Window
     {
         if (userNameInput.Text != "" && passwordInput.Text != "")
         {
-            string passwordHash = Authentication.ConvertToHash(passwordInput.Text.ToString());
-            User currentUser = userRepository.GetUser(userNameInput.Text.ToString(), passwordHash);
+            User currentUser = Authentication.DoLogIn(userRepository, passwordInput.Text.ToString(), userNameInput.Text.ToString());
             if (currentUser != null)
             {
-                Application.Init();
-                if (currentUser == null)
-                {
-                    MessageBox.ErrorQuery("Incorrect information", "Can't log in. Try again.", "OK");
-                }
-                else
-                {
-                    OpenMainWindow(currentUser);
-                }
+                OpenMainWindow(currentUser);
             }
             else
             {
                 MessageBox.ErrorQuery("Incorrect information", "Can't log in. Try again.", "OK");
             }
-
-
         }
         else
         {
@@ -117,6 +105,7 @@ public class AuthenticationWindow : Window
 
     private void OpenMainWindow(User currentUser)
     {
+        Application.Init();
         Toplevel top = Application.Top;
         MainWindow window = new MainWindow(currentUser);
         window.SetData(userRepository, postRepository, commentRepository);

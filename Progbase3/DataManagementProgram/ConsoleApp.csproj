@@ -11,4 +11,8 @@
     <PackageReference Include="Terminal.Gui" Version="1.0.0 -rc.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Progbase3ClassLib\Progbase3ClassLib.csproj" />
+  </ItemGroup>
+
 </Project>
