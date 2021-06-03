@@ -27,14 +27,6 @@ public static class Authentication
     }
 
 
-    private static bool VerifyHash(HashAlgorithm hashAlgorithm, string input, string hash)
-    {
-        var hashOfInput = GetHash(hashAlgorithm, input);
-        StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-        return comparer.Compare(hashOfInput, hash) == 0;
-    }
-
-
     public static void DoAuthorization(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository)
     {
         while (true)

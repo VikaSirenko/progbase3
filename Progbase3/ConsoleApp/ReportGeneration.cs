@@ -23,13 +23,13 @@ public static class ReportGeneration
             Post postWithMaxCom = FindPostWithTheMostComments(postsOnInterval, commentRepository);
             XElement root = XElement.Load(extractPath + "/content.xml");
             Dictionary<string, string> dict = new Dictionary<string, string>
-        {
-            {"{start}", start.ToString()},
-            {"{end}", end.ToString()},
-            {"{postsNum}", postNum.ToString()},
-            {"{commentsNum}", comNum.ToString()},
-            {"{postWithMaxCom}", postWithMaxCom.ToString()},
-        };
+            {
+                {"{start}", start.ToString()},
+                {"{end}", end.ToString()},
+                {"{postsNum}", postNum.ToString()},
+                {"{commentsNum}", comNum.ToString()},
+                {"{postWithMaxCom}", postWithMaxCom.ToString()},
+            };
             FindAndReplace(root, dict);
             ReplaceImage(imagePath);
             root.Save(extractPath + "/content.xml");

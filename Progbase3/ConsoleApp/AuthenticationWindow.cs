@@ -66,11 +66,7 @@ public class AuthenticationWindow : Window
                 {
                     long id = userRepository.Insert(user);
                     user.id = id;
-                    Toplevel top = Application.Top;
-                    MainWindow window = new MainWindow(user);
-                    window.SetData(userRepository, postRepository, commentRepository);
-                    top.Add(window);
-                    Application.Run();
+                    OpenMainWindow(currentUser);
                 }
                 else
                 {
@@ -102,11 +98,7 @@ public class AuthenticationWindow : Window
                 }
                 else
                 {
-                    Toplevel top = Application.Top;
-                    MainWindow window = new MainWindow(currentUser);
-                    window.SetData(userRepository, postRepository, commentRepository);
-                    top.Add(window);
-                    Application.Run();
+                    OpenMainWindow(currentUser);
                 }
             }
             else
@@ -120,6 +112,16 @@ public class AuthenticationWindow : Window
         {
             MessageBox.ErrorQuery("Incorrect information", "You have not filled in the fields", "OK");
         }
+
+    }
+
+    private void OpenMainWindow(User currentUser)
+    {
+        Toplevel top = Application.Top;
+        MainWindow window = new MainWindow(currentUser);
+        window.SetData(userRepository, postRepository, commentRepository);
+        top.Add(window);
+        Application.Run();
 
     }
 
