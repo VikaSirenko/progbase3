@@ -13,14 +13,16 @@ public static class ReportGeneration
         DateTime startDate = DateTime.Parse(start);
         DateTime endDate = DateTime.Parse(end);
         string zipPath = "../../data/reportData/reportTemplate.docx";
-        string extractPath = "../../data/reportData/reportExtract";
-        ZipFile.ExtractToDirectory(zipPath, extractPath);
-        List<Post> postsOnInterval = GetListOfPostsOnTimeInterval(startDate, endDate, currentUser, postRepository);
-        int postNum = postsOnInterval.Count;
-        int comNum = GetListOfCommentsOnTimeInterval(startDate, endDate, currentUser, commentRepository).Count;
-        Post postWithMaxCom = FindPostWithTheMostComments(postsOnInterval, commentRepository);
-        XElement root = XElement.Load(extractPath + "/content.xml");
-        Dictionary<string, string> dict = new Dictionary<string, string>
+        if (File.Exists(zipPath))
+        {
+            string extractPath = "../../data/reportData/reportExtract";
+            ZipFile.ExtractToDirectory(zipPath, extractPath);
+            List<Post> postsOnInterval = GetListOfPostsOnTimeInterval(startDate, endDate, currentUser, postRepository);
+            int postNum = postsOnInterval.Count;
+            int comNum = GetListOfCommentsOnTimeInterval(startDate, endDate, currentUser, commentRepository).Count;
+            Post postWithMaxCom = FindPostWithTheMostComments(postsOnInterval, commentRepository);
+            XElement root = XElement.Load(extractPath + "/content.xml");
+            Dictionary<string, string> dict = new Dictionary<string, string>
         {
             {"{start}", start.ToString()},
             {"{end}", end.ToString()},
@@ -28,10 +30,16 @@ public static class ReportGeneration
             {"{commentsNum}", comNum.ToString()},
             {"{postWithMaxCom}", postWithMaxCom.ToString()},
         };
-        FindAndReplace(root, dict);
-        root.Save(extractPath + "/content.xml");
-        ZipFile.CreateFromDirectory(extractPath, savePath);
-        Directory.Delete(extractPath, true);
+            FindAndReplace(root, dict);
+            ReplaceImage(imagePath);
+            root.Save(extractPath + "/content.xml");
+            ZipFile.CreateFromDirectory(extractPath, savePath);
+            Directory.Delete(extractPath, true);
+        }
+        else
+        {
+            throw new Exception("There is no template for generating the report");
+        }
 
     }
 
@@ -113,6 +121,13 @@ public static class ReportGeneration
         }
     }
 
+
+    private static void ReplaceImage(string saveImagePath)
+    {
+        string pathToDocxImage = "../../data/reportData/reportExtract/Pictures";
+        FileInfo fInfo = new FileInfo(saveImagePath);
+        fInfo.Replace(saveImagePath, pathToDocxImage + "/1000020100000258000001904721FF9F1E0E4E2D.png");
+    }
 
 
 

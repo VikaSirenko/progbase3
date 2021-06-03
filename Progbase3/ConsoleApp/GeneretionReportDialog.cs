@@ -12,6 +12,7 @@ public class GeneretionReportDialog : Dialog
     private User currentUser;
     private PostRepository postRepository;
     private CommentRepository commentRepository;
+    private bool isImageGenerete = false;
     public GeneretionReportDialog()
     {
         this.Title = "Generete Report";
@@ -122,6 +123,7 @@ public class GeneretionReportDialog : Dialog
                     {
                         Image.GenereteImage(postRepository, commentRepository, firstDay, lastDay, saveFile, currentUser);
                         MessageBox.Query("Image", $"Graphics image saved in: '{saveFile}'", "OK");
+                        isImageGenerete = true;
                     }
                     catch
                     {
@@ -156,24 +158,30 @@ public class GeneretionReportDialog : Dialog
         {
             try
             {
-                if (!File.Exists(reportPath) && !File.Exists(imagePath))
+                if (!File.Exists(reportPath))
                 {
 
-                    OnGenereteImage();
+                    if (isImageGenerete == true)
+                    {
 
-                    ReportGeneration.GenereteReport(startDate.Text.ToString(), endDate.Text.ToString(),
-                             imagePath, reportPath, postRepository, commentRepository, currentUser);
-                    MessageBox.Query("Report generation", $"Report saved in: '{reportPath}'", "OK");
-                    Application.RequestStop();
+                        ReportGeneration.GenereteReport(startDate.Text.ToString(), endDate.Text.ToString(),
+                                 imagePath, reportPath, postRepository, commentRepository, currentUser);
+                        MessageBox.Query("Report generation", $"Report saved in: '{reportPath}'", "OK");
+                        Application.RequestStop();
+                    }
+                    else
+                    {
+                        MessageBox.ErrorQuery("ERROR", "Generate a graphic image first", "OK");
+                    }
                 }
                 else
                 {
-                    MessageBox.ErrorQuery("ERROR", "Report file or image already exists. Rename the files", "OK");
+                    MessageBox.ErrorQuery("ERROR", "Report file  already exists. Rename the files", "OK");
                 }
             }
             catch (System.Exception ex)
             {
-                MessageBox.ErrorQuery("ERROR", $"Unable to save report: '{ex.Message.ToString()}'", "OK");
+                MessageBox.ErrorQuery("ERROR", $"Unable to generate report: '{ex.Message.ToString()}'", "OK");
             }
 
         }

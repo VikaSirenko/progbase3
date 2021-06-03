@@ -10,20 +10,6 @@ public class UserRepository
         this.connection = connection;
     }
 
-    //checks if the user exists by his username and password
-    public bool UserExists(string userName, string passwordHash)
-    {
-        connection.Open();
-        SqliteCommand command = connection.CreateCommand();
-        command.CommandText = @"SELECT * FROM users WHERE username = $username OR passwordHash = $passwordHash";
-        command.Parameters.AddWithValue("$username", userName);
-        command.Parameters.AddWithValue("$passwordHash", passwordHash);
-        SqliteDataReader reader = command.ExecuteReader();
-        bool result = reader.Read();
-        connection.Close();
-        return result;
-    }
-
     //returns the number of users in the database
     public long GetCount()
     {
@@ -37,7 +23,7 @@ public class UserRepository
     }
 
     //checks if the user exists by his ID (necessary for generation)
-    public bool UserExistsById(long id)
+    public bool UserExists(long id)
     {
         connection.Open();
         SqliteCommand command = connection.CreateCommand();

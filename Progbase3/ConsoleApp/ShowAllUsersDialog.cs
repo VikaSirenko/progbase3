@@ -88,7 +88,7 @@ public class ShowAllUsersDialog : Dialog
 
             else
             {
-                if (!userRepository.UserExists(user.userName, user.passwordHash))
+                if (userRepository.GetUser(user.userName, user.passwordHash) == null)
                 {
                     long id = userRepository.Insert(user);
                     user.id = id;

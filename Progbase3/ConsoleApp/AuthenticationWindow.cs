@@ -61,7 +61,8 @@ public class AuthenticationWindow : Window
 
             else
             {
-                if (!userRepository.UserExists(user.userName, user.passwordHash))
+                User currentUser = userRepository.GetUser(user.userName, user.passwordHash);
+                if (currentUser == null)
                 {
                     long id = userRepository.Insert(user);
                     user.id = id;
@@ -91,10 +92,10 @@ public class AuthenticationWindow : Window
         if (userNameInput.Text != "" && passwordInput.Text != "")
         {
             string passwordHash = Authentication.ConvertToHash(passwordInput.Text.ToString());
-            if (userRepository.UserExists(userNameInput.Text.ToString(), passwordHash))
+            User currentUser = userRepository.GetUser(userNameInput.Text.ToString(), passwordHash);
+            if (currentUser != null)
             {
                 Application.Init();
-                User currentUser = userRepository.GetUser(userNameInput.Text.ToString(), passwordHash);
                 if (currentUser == null)
                 {
                     MessageBox.ErrorQuery("Incorrect information", "Can't log in. Try again.", "OK");

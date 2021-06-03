@@ -77,7 +77,7 @@ public static class Generator
             User user = new User(userName[0], password, fullname, isModeratorNum);
             UserRepository userRepository = new UserRepository(connection);
 
-            if (userRepository.UserExists(user.userName, user.passwordHash) == false)
+            if (userRepository.GetUser(user.userName, user.passwordHash) == null)
             {
                 userRepository.Insert(user);
                 numberOfUsers--;
@@ -115,14 +115,14 @@ public static class Generator
                 Post post = new Post();
                 post.userId = GetRandomUserId(userRepository);
 
-                if (userRepository.UserExistsById(post.userId) == true)
+                if (userRepository.UserExists(post.userId) == true)
                 {
                     string postPath = "../../data/generator/posts.csv";
                     int postsLines = 100000;
                     string[] publicationText = (FindRandomLineInFile(postPath, postsLines)).Split(",");
                     post.publicationText = publicationText[1];
                     post.publishedAt = RandomDateTime(times);
-                    post.pinCommentId = default;                                   
+                    post.pinCommentId = default;
                     PostRepository postRepository = new PostRepository(connection);
                     postRepository.Insert(post);
                     numberOfPosts--;
@@ -172,12 +172,12 @@ public static class Generator
 
                 comment.postId = postId;
 
-                if (userRepository.UserExistsById(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
+                if (userRepository.UserExists(comment.userId) == true && postRepository.PostExists(comment.postId) == true)
                 {
                     string commentsPath = "../../data/generator/comments.csv";
                     int commentsLines = 100000;
                     string[] commentText = (FindRandomLineInFile(commentsPath, commentsLines)).Split(",");
-                    comment.commentText = commentText[1];                  
+                    comment.commentText = commentText[1];
                     comment.commentedAt = RandomDateTime(times);
                     Post post = postRepository.GetByPostId(comment.userId);
                     CommentRepository commentRepository = new CommentRepository(connection);
